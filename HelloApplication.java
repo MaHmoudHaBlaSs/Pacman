@@ -13,8 +13,8 @@ import java.io.IOException;
 
 public class HelloApplication extends Application {
     private static final double CELL_SIZE = 40;
-    private static final int BOARD_WIDTH = 1000;
-    private static final int BOARD_HEIGHT = 800;
+    private static final int BOARD_WIDTH = 760;
+    private static final int BOARD_HEIGHT = 760;
 
 
     @Override
