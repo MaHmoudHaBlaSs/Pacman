@@ -25,6 +25,9 @@ public class MazeView {
     public Group getMazeGroup() {
         return mazeGroup;
     }
+    public Maze getMaze(){
+        return maze;
+    }
 
     private void drawMaze() {
         int rows = maze.getRows();
