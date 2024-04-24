@@ -3,9 +3,9 @@ package org.example.gamedemo;
 import java.util.Random;
 
 public class Maze {
-    private static final int CELL_SIZE = 20;
-    private static final int BOARD_WIDTH = 1000;
-    private static final int BOARD_HEIGHT = 800;
+    private static final int CELL_SIZE = 40;
+    private static final int BOARD_WIDTH = 760;
+    private static final int BOARD_HEIGHT = 760;
     private static final int EMPTY_SPACE = 0;
     private static final int WALL = 1;
     private static final int PELLET = 2;
