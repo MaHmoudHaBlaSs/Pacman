@@ -15,40 +15,55 @@ public class PacMan extends Node{
     private double xPos;
     private double yPos;
     private boolean reflected = false;
+    private Maze maze ;
 
-    public PacMan(int x, int y) {
-        // Load the Pacman GIF
-        image = new Image("https://art.pixilart.com/58c5d6cfa07837f.gif");
+    public PacMan(int startingI,int startingJ,MazeView mazeView){
+        maze = mazeView.getMaze();
+        i = startingI;
+        j = startingJ;
 
         // Create the ImageView
-        pacman_gif = new ImageView(image);
+        pacman_gif = new ImageView("pacman02.gif");
 
         // Set the initial position
-        pacman_gif.setX(x);
-        pacman_gif.setY(y);
-        xPos = pacman_gif.getX();
-        yPos = pacman_gif.getY();
+        pacman_gif.setX(j*CELL_SIZE-5);
+        pacman_gif.setY(i*CELL_SIZE);
 
         // Set the size (adjust as needed)
-        pacman_gif.setFitWidth(100);
-        pacman_gif.setFitHeight(100);
+        pacman_gif.setFitWidth(CELL_SIZE+10);
+        pacman_gif.setFitHeight(CELL_SIZE+10);
+
+
     }
+
 
     public ImageView getView() {
         return pacman_gif;
     }
 
-    public void movePacman(double dx, double dy) {
-        double newXPosition = pacman_gif.getX() + dx;
-        double newYPosition = pacman_gif.getY() + dy;
-        if ((newXPosition <= BOARD_WIDTH - (CELL_SIZE / 3)) &&
-                newYPosition <= BOARD_HEIGHT - (CELL_SIZE / 3)) {
-            pacman_gif.setX(newXPosition);
-            pacman_gif.setY(newYPosition);
-            this.xPos = newXPosition;
-            this.yPos = newYPosition;
+    public void moveRight(){
+        if(!maze.isWall(i,j+1)) {
+            j++;
+            setPosition();
         }
     }
+    public void moveLeft(){
+        if(!maze.isWall(i,j-1)) {
+            j--;
+            setPosition();
+        }
+    }    public void moveUp(){
+        if(!maze.isWall(i-1,j)) {
+            i--;
+            setPosition();
+        }
+    }    public void moveDown(){
+        if(!maze.isWall(i+1,j)) {
+            i++;
+            setPosition();
+        }
+    }
+
 
     public void reflectVerticallyToLeft() {
         // Reset to initial angel
