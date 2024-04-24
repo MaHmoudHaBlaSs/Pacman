@@ -63,6 +63,10 @@ public class PacMan extends Node{
             setPosition();
         }
     }
+    private void setPosition(){
+        pacman_gif.setX(j*CELL_SIZE -5);
+        pacman_gif.setY(i*CELL_SIZE);
+    }
 
 
     public void reflectVerticallyToLeft() {
