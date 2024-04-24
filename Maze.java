@@ -43,8 +43,6 @@ public class Maze {
        }
 
         // Implement maze generation algorithm to create interior walls
-        // For example, you can use a randomized algorithm like recursive division
-        // or depth-first search to create maze walls.
         generateInteriorWalls();
 
         // Place pellets and power pellets
@@ -52,8 +50,6 @@ public class Maze {
     }
 
     // Implement maze generation algorithm to create interior walls
-    // For example, you can use a randomized algorithm like recursive division
-    // or depth-first search to create maze walls.
     private void generateInteriorWalls() {
 
     }
