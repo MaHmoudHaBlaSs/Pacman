@@ -8,14 +8,14 @@ import org.example.gamedemo.HelloApplication;
 
 public class PacMan extends Node{
     private static final int CELL_SIZE = 40;
-    private static final int BOARD_WIDTH = 1000;
-    private static final int BOARD_HEIGHT = 800;
+    private static final int BOARD_WIDTH = 760;
+    private static final int BOARD_HEIGHT = 760;
     private Image image;
     private ImageView pacman_gif;
-    private double xPos;
-    private double yPos;
     private boolean reflected = false;
     private Maze maze ;
+    private int i;
+    private int j;
 
     public PacMan(int startingI,int startingJ,MazeView mazeView){
         maze = mazeView.getMaze();
@@ -23,7 +23,7 @@ public class PacMan extends Node{
         j = startingJ;
 
         // Create the ImageView
-        pacman_gif = new ImageView("pacman02.gif");
+        pacman_gif = new ImageView("Image.Url");
 
         // Set the initial position
         pacman_gif.setX(j*CELL_SIZE-5);
@@ -32,7 +32,6 @@ public class PacMan extends Node{
         // Set the size (adjust as needed)
         pacman_gif.setFitWidth(CELL_SIZE+10);
         pacman_gif.setFitHeight(CELL_SIZE+10);
-
 
     }
 
