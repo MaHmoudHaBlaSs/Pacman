@@ -1,4 +1,4 @@
-package com.example.pac_man;
+package org.example.gamedemo;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
