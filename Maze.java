@@ -1,4 +1,4 @@
-package com.example.pac_man;
+package org.example.gamedemo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,16 +52,15 @@ public class Maze {
         arr = new int[][]{{2, 4, 5, 7, 8, 9}, {2, 7}, {2, 3, 5, 7, 9}, {5, 9}, {1, 3, 4, 5, 6, 7, 9}, {1, 5}, {3, 5, 7, 8, 9}};
         for(int i =0; i<arr.length; i++){
             for(int j = 0 ; j<arr[i].length ;j++){
-                    grid[i+2][arr[i][j]] = WALL;
-                    grid[ROWS-(i+3)][arr[i][j]] = WALL;
-                    grid[i+2][COLS-1-arr[i][j]] = WALL;
-                    grid[ROWS-(i+3)][COLS-1-arr[i][j]] = WALL;
+                grid[i+2][arr[i][j]] = WALL;
+                grid[ROWS-(i+3)][arr[i][j]] = WALL;
+                grid[i+2][COLS-1-arr[i][j]] = WALL;
+                grid[ROWS-(i+3)][COLS-1-arr[i][j]] = WALL;
             }
         }
         int[] middle= {1,3,7,17,15,11};
-        for(int i=0;i<middle.length;i++)
-            grid[9][middle[i]] = WALL;
-
+        for(int i=0;i<middle.length;i++) {grid[9][middle[i]] = WALL;}
+        grid[8][9] = EMPTY_SPACE;
     }
     private void placePellets() {
         Random random = new Random();
