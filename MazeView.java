@@ -1,29 +1,18 @@
-package org.example.gamedemo;
+package com.example.pac_man;
 
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Circle;
 
-public class MazeView {
+public class MazeView extends Pane {
     private static final int CELL_SIZE = 40; // Controls the screen Dimensions (be Careful)
-    private static final int BOARD_WIDTH = 760;
-    private static final int BOARD_HEIGHT = 760;
-    private static final int EMPTY_SPACE = 0;
-    private static final int WALL = 1;
-    private static final int PELLET = 2;
-    private static final int POWER_PELLET = 3;
     private Maze maze;
-    private Group mazeGroup;
-
     public MazeView(Maze maze) {
         this.maze = maze;
-        mazeGroup = new Group();
         drawMaze();
-    }
-
-    public Group getMazeGroup() {
-        return mazeGroup;
     }
     public Maze getMaze(){
         return maze;
@@ -38,22 +27,22 @@ public class MazeView {
                 if (maze.isWall(i, j))
                 {
                     //                Coordinates : X(Rows*Width), Y(Cols*Height)      Dimensions
-                    Rectangle wall = new Rectangle(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                    wall.setFill(Color.BLUE); // Adjust wall color
+                    Rectangle wall = new Rectangle(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE-2, CELL_SIZE-2);
+                    wall.setFill(Color.rgb(36,36,50)); // Adjust wall color
                     wall.setStroke(Color.BLACK);
                     wall.setStrokeWidth(3);
                     wall.setArcHeight(10);
                     wall.setArcWidth(10);
-                    mazeGroup.getChildren().add(wall);
+                    getChildren().add(wall);
                 }
                 else if (maze.isPellet(i, j))
                 {
-                    //                Coordinates : X(Rows*Width+.5*CELL) -> Center of the Cell....               Radius
+                    //Coordinates : X(Rows*Width+.5*CELL) -> Center of the Cell....               Radius
                     Circle pellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, 4);
                     pellet.setFill(Color.YELLOW); // Adjust pellet color
                     pellet.setStroke(Color.BLACK);
                     pellet.setStrokeWidth(1);
-                    mazeGroup.getChildren().add(pellet);
+                    getChildren().add(pellet);
                 }
                 else if (maze.isPowerPellet(i, j))
                 {
@@ -62,11 +51,16 @@ public class MazeView {
                     powerPellet.setFill(Color.ORANGE); // Adjust power pellet color
                     powerPellet.setStrokeWidth(1.3);
                     powerPellet.setStroke(Color.RED);
-                    mazeGroup.getChildren().add(powerPellet);
+                    getChildren().add(powerPellet);
+                }
+                else{
+                    //                Coordinates : X(Rows*Width), Y(Cols*Height)      Dimensions
+                    Rectangle emptyCell = new Rectangle(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    emptyCell.setFill(Color.WHITE); // Adjust wall color
+                    getChildren().add(emptyCell);
                 }
                 // Add more conditions to handle Pacman and ghosts
             }
         }
     }
 }
-
