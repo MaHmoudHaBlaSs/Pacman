@@ -24,14 +24,14 @@ public class HelloApplication extends Application {
         // Create Pac-Man
 
         MazeView mazeView = new MazeView(new Maze(ROWS,COLS));
-        PacMan pacman = new PacMan(1, 5,mazeView);
+        PacMan pacman = new PacMan(1, 1,mazeView);
         Pane root = new Pane();
         Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
 
         root.getChildren().addAll(mazeView.getMazeGroup(),pacman.getView());
 
         // Set up event handling for key presses
-        scene.setOnKeyPressed(e->{
+        pacman.getView().setOnKeyPressed(e->{
             switch(e.getCode()){
                 case UP :
                     pacman.moveUp();
@@ -54,6 +54,7 @@ public class HelloApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Pac-Man Game");
         primaryStage.show();
+        pacman.getView().requestFocus();
     }
 
     public static void main(String[] args) {
