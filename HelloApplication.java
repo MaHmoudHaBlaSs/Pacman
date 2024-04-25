@@ -1,4 +1,4 @@
-package org.example.gamedemo;
+package com.example.pac_man;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -16,22 +16,19 @@ public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
-    private static int ROWS = BOARD_HEIGHT / CELL_SIZE;
-    private static int COLS = BOARD_HEIGHT / CELL_SIZE;
 
     @Override
     public void start(Stage primaryStage) {
+        // Create Pac-Man
 
-        Maze maze = new Maze(ROWS, COLS);
-        MazeView mazeView = new MazeView(maze);
+        MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE));
         PacMan pacman = new PacMan(1, 1,mazeView);
-        Pane root = new Pane();
-        Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
-
-        root.getChildren().addAll(mazeView.getMazeGroup(),pacman.getView());
+        Scene scene = new Scene(mazeView, BOARD_WIDTH, BOARD_HEIGHT);
+//        Pane root = new Pane();
+        //root.getChildren().addAll(mazeView.getMazeGroup(),pacman.getView());
 
         // Set up event handling for key presses
-        pacman.getView().setOnKeyPressed(e->{
+        scene.setOnKeyPressed(e->{
             switch(e.getCode()){
                 case UP :
                     pacman.moveUp();
@@ -54,11 +51,9 @@ public class HelloApplication extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Pac-Man Game");
         primaryStage.show();
-        pacman.getView().requestFocus();
     }
 
     public static void main(String[] args) {
         launch();
     }
 }
-
