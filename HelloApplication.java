@@ -21,9 +21,9 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Create Pac-Man
 
-        MazeView mazeView = new MazeView(new Maze(ROWS,COLS));
+        Maze maze = new Maze(ROWS, COLS);
+        MazeView mazeView = new MazeView(maze);
         PacMan pacman = new PacMan(1, 1,mazeView);
         Pane root = new Pane();
         Scene scene = new Scene(root, BOARD_WIDTH, BOARD_HEIGHT);
