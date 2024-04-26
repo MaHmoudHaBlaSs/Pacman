@@ -40,27 +40,19 @@ public class Ghost extends Character{
                 if(moves == 15) {mode = 2; moves = 0;}
                 if(!maze.isWall(i-1,j) && ((direction != DOWN) || isStuck(i,j))) // Check top side
                 {
-                    i -= 1;
-                    setPosition();
-                    direction = UP;
+                    moveUp();
                 }
                 else if(!maze.isWall(i,j+1) && ((direction != LEFT) || (isStuck(i, j)))) // Check right side
                 {
-                    j += 1;
-                    setPosition();
-                    direction = RIGHT;
+                    moveRight();
                 }
                 else if(!maze.isWall(i+1,j) && ((direction != UP) || isStuck(i,j))) // Check bottom side
                 {
-                    i += 1;
-                    setPosition();
-                    direction = DOWN;
+                    moveDown();
                 }
                 else if(!maze.isWall(i, j-1) && ((direction != RIGHT) || (isStuck(i, j)))) // Check left side
                 {
-                    j -= 1;
-                    setPosition();
-                    direction = LEFT;
+                    moveLeft();
                 }
                 moves++;
             break;
@@ -69,27 +61,19 @@ public class Ghost extends Character{
                 if(moves == 13) {mode = 3; moves = 0;}
                 if(!maze.isWall(i+1,j) && ((direction != UP) || isStuck(i,j))) // Check Bottom side
                 {
-                    i += 1;
-                    setPosition();
-                    direction = DOWN;
+                    moveDown();
                 }
                 else if(!maze.isWall(i, j-1) && ((direction != RIGHT) || (isStuck(i, j)))) // Check lef side
                 {
-                    j -= 1;
-                    setPosition();
-                    direction = LEFT;
+                    moveLeft();
                 }
                 else if(!maze.isWall(i-1,j) && ((direction != DOWN) || isStuck(i,j))) // Check top side
                 {
-                    i -= 1;
-                    setPosition();
-                    direction = UP;
+                    moveUp();
                 }
                 else if(!maze.isWall(i,j+1) && ((direction != LEFT) || (isStuck(i, j)))) // Check right side
                 {
-                    j += 1;
-                    setPosition();
-                    direction = RIGHT;
+                    moveRight();
                 }
                 moves++;
             break;
@@ -98,27 +82,19 @@ public class Ghost extends Character{
                 if(moves == 12) {mode = 4; moves = 0;}
                 if(!maze.isWall(i, j-1) && ((direction != RIGHT) || (isStuck(i, j)))) // Check lef side
                 {
-                    j -= 1;
-                    setPosition();
-                    direction = LEFT;
+                    moveLeft();
                 }
                 else if(!maze.isWall(i-1,j) && ((direction != DOWN) || isStuck(i,j))) // Check top side
                 {
-                    i -= 1;
-                    setPosition();
-                    direction = UP;
+                    moveUp();
                 }
                 else if(!maze.isWall(i+1,j) && ((direction != UP) || isStuck(i,j))) // Check Bottom side
                 {
-                    i += 1;
-                    setPosition();
-                    direction = DOWN;
+                    moveDown();
                 }
                 else if(!maze.isWall(i,j+1) && ((direction != LEFT) || (isStuck(i, j)))) // Check right side
                 {
-                    j += 1;
-                    setPosition();
-                    direction = RIGHT;
+                    moveRight();
                 }
                 moves++;
             break;
@@ -127,27 +103,19 @@ public class Ghost extends Character{
                 if(moves == 14) {mode = 1; moves = 0;}
                 if(!maze.isWall(i,j+1) && ((direction != LEFT) || (isStuck(i, j)))) // Check right side
                 {
-                    j += 1;
-                    setPosition();
-                    direction = RIGHT;
+                    moveRight();
                 }
                 else if(!maze.isWall(i+1,j) && ((direction != UP) || isStuck(i,j))) // Check Bottom side
                 {
-                    i += 1;
-                    setPosition();
-                    direction = DOWN;
+                    moveDown();
                 }
                 else if(!maze.isWall(i-1,j) && ((direction != DOWN) || isStuck(i,j))) // Check top side
                 {
-                    i -= 1;
-                    setPosition();
-                    direction = UP;
+                    moveUp();
                 }
                 else if(!maze.isWall(i, j-1) && ((direction != RIGHT) || (isStuck(i, j)))) // Check lef side
                 {
-                    j -= 1;
-                    setPosition();
-                    direction = LEFT;
+                    moveLeft();
                 }
                 moves++;
             break;
@@ -161,5 +129,29 @@ public class Ghost extends Character{
         if(maze.isWall(i+1,j)) {walls++;} // Check bottom side
         if(maze.isWall(i, j-1)) {walls++;}// Check left side
         return walls == 3;
+    }
+    @Override
+    public void moveRight(){
+        j += 1;
+        setPosition();
+        direction = RIGHT;
+    }
+    @Override
+    public void moveLeft(){
+        j -= 1;
+        setPosition();
+        direction = LEFT;
+    }
+    @Override
+    public void moveUp(){
+        i -= 1;
+        setPosition();
+        direction = UP;
+    }
+    @Override
+    public void moveDown(){
+        i += 1;
+        setPosition();
+        direction = DOWN;
     }
 }
