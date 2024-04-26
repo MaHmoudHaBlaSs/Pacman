@@ -36,7 +36,7 @@ public class HelloApplication extends Application {
         Ghost ghost4 = new Ghost(8,9,mazeView);
         ghost4.setMode(4);
 
-        Scene scene = new Scene(mazeView, BOARD_WIDTH, BOARD_HEIGHT);
+        Scene scene = new Scene(mazeView, BOARD_WIDTH, BOARD_HEIGHT, Color.GRAY);
 
         // Set up event handling for key presses
         scene.setOnKeyPressed(e->{
