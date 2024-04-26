@@ -1,22 +1,15 @@
 package org.example.gamedemo;
 
-import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.IOException;
+import java.io.File;
 
 public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
@@ -36,7 +29,11 @@ public class HelloApplication extends Application {
         Ghost ghost4 = new Ghost(8,9,mazeView);
         ghost4.setMode(4);
 
-        Scene scene = new Scene(mazeView, BOARD_WIDTH, BOARD_HEIGHT, Color.GRAY);
+        //adding backgroud sound
+
+
+
+        Scene scene = new Scene(mazeView, BOARD_WIDTH, BOARD_HEIGHT);
 
         // Set up event handling for key presses
         scene.setOnKeyPressed(e->{
@@ -62,7 +59,11 @@ public class HelloApplication extends Application {
         });
 
         Timeline ghostTM = new Timeline(
-                new KeyFrame(Duration.millis(200), e -> {
+                new KeyFrame(Duration.millis(400), event -> {
+                    Media sound = new Media(new File("C:\\Users\\Abdal\\IdeaProjects\\helloapplication\\src\\main\\resources\\pacman_chomp.mp3").toURI().toString());
+                    MediaPlayer bckgmp3 = new MediaPlayer(sound);
+                    bckgmp3.setCycleCount(bckgmp3.INDEFINITE);
+                    bckgmp3.play();
                     ghost1.moveGhost();
                     ghost2.moveGhost();
                     ghost3.moveGhost();
@@ -70,6 +71,18 @@ public class HelloApplication extends Application {
                 }));
         ghostTM.setCycleCount(-1);
         ghostTM.play();
+
+        Timeline checklife = new Timeline(
+                new KeyFrame(Duration.millis(2 ), e -> {
+
+                    if((pacman.getI()==ghost1.getI()&&pacman.getJ()==ghost1.getJ())||(pacman.getI()==ghost2.getI()&&pacman.getJ()==ghost2.getJ())||(pacman.getI()==ghost3.getI()&&pacman.getJ()==ghost3.getJ())||(pacman.getI()==ghost4.getI()&&pacman.getJ()==ghost4.getJ())){
+                        mazeView.getChildren().remove(pacman.character_gif);
+                        ghostTM.stop();
+
+                    }
+                }));
+        checklife.setCycleCount(-1);
+        checklife.play();
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("Pac-Man Game");
