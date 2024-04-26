@@ -26,6 +26,7 @@ public class PacMan extends Character{
 
     }
 
+    @Override
     public void moveRight(){
         if(!maze.isWall(i,j+1)) {
             j++;
@@ -33,6 +34,7 @@ public class PacMan extends Character{
             updateScore();
         }
     }
+    @Override
     public void moveLeft(){
         if(!maze.isWall(i,j-1)) {
             j--;
@@ -40,6 +42,7 @@ public class PacMan extends Character{
             updateScore();
         }
     }
+    @Override
     public void moveUp(){
         if(!maze.isWall(i-1,j)) {
             i--;
@@ -47,6 +50,7 @@ public class PacMan extends Character{
             updateScore();
         }
     }
+    @Override
     public void moveDown(){
         if(!maze.isWall(i+1,j)) {
             i++;
@@ -61,9 +65,9 @@ public class PacMan extends Character{
         else if(maze.isPowerPellet(i,j))
             score += 100;
 
-        //replace the pallet cell with empty space
+        //replace the pallet cell with empty space (empty Rectangle)
         Rectangle emptySpace = new Rectangle(j * CELL_SIZE, i * CELL_SIZE,CELL_SIZE,CELL_SIZE);
-        emptySpace.setFill(Color.WHITE);
+        emptySpace.setFill(Color.TRANSPARENT);
         maze.setEmptySpace(i,j);
         mazeView.getChildren().remove(i* maze.getCols() + j );
         mazeView.getChildren().add(i* maze.getCols() + j, emptySpace);
