@@ -56,7 +56,7 @@ public class MazeView extends Pane {
                 else{
                     //                Coordinates : X(Rows*Width), Y(Cols*Height)      Dimensions
                     Rectangle emptyCell = new Rectangle(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                    emptyCell.setFill(Color.WHITE); // Adjust wall color
+                    emptyCell.setFill(Color.TRANSPARENT); // Adjust wall color
                     getChildren().add(emptyCell);
                 }
                 // Add more conditions to handle Pacman and ghosts
