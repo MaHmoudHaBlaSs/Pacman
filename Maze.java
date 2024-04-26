@@ -61,6 +61,9 @@ public class Maze {
         int[] middle= {1,3,7,17,15,11};
         for(int i=0;i<middle.length;i++) {grid[9][middle[i]] = WALL;}
         grid[8][9] = EMPTY_SPACE;
+        grid[10][9] = EMPTY_SPACE;
+        grid[2][9] = EMPTY_SPACE;
+        grid[16][9] = EMPTY_SPACE;
     }
     private void placePellets() {
         Random random = new Random();
