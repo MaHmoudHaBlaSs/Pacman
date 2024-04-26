@@ -63,4 +63,29 @@ public class Character {
         character_gif.setX(j*CELL_SIZE -5);
         character_gif.setY(i*CELL_SIZE);
     }
+       public void moveRight(){
+        if(!maze.isWall(i,j+1)) {
+            j++;
+            setPosition();
+        }
+    }
+    public void moveLeft(){
+        if(!maze.isWall(i,j-1)) {
+            j--;
+            setPosition();
+        }
+    }
+    public void moveUp(){
+        if(!maze.isWall(i-1,j)) {
+            i--;
+            setPosition();
+        }
+    }
+    public void moveDown(){
+        if(!maze.isWall(i+1,j)) {
+            i++;
+            setPosition();
+        }
+    }
+
 }
