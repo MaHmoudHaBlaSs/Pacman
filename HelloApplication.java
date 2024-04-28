@@ -75,7 +75,10 @@ public class HelloApplication extends Application {
         Timeline checklife = new Timeline(
                 new KeyFrame(Duration.millis(2 ), e -> {
 
-                    if((pacman.getI()==ghost1.getI()&&pacman.getJ()==ghost1.getJ())||(pacman.getI()==ghost2.getI()&&pacman.getJ()==ghost2.getJ())||(pacman.getI()==ghost3.getI()&&pacman.getJ()==ghost3.getJ())||(pacman.getI()==ghost4.getI()&&pacman.getJ()==ghost4.getJ())){
+                    if((pacman.getI()==ghost1.getI()&&pacman.getJ()==ghost1.getJ())
+                       ||(pacman.getI()==ghost2.getI()&&pacman.getJ()==ghost2.getJ())
+                       ||(pacman.getI()==ghost3.getI()&&pacman.getJ()==ghost3.getJ())
+                       ||(pacman.getI()==ghost4.getI()&&pacman.getJ()==ghost4.getJ())){
                         mazeView.getChildren().remove(pacman.character_gif);
                         ghostTM.stop();
 
