@@ -4,10 +4,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -15,7 +11,7 @@ public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
-    int level = 5;
+    int level = 1;
 
     @Override
     public void start(Stage primaryStage) {
@@ -23,11 +19,7 @@ public class HelloApplication extends Application {
         MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE));
         PacMan pacman = new PacMan(1, 1,mazeView);
         Ghost[] ghosts = createGhosts(mazeView,level);
-        ImageView backgroundImg = new ImageView(new Image("Background.gif"));
-        backgroundImg.setFitWidth(BOARD_WIDTH);
-        backgroundImg.setFitHeight(BOARD_HEIGHT);
-        StackPane backgroundPane = new StackPane(backgroundImg);
-        backgroundPane.getChildren().add(mazeView);
+
         //check if the pacman is alive
         Timeline positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
             for(Ghost ghost : ghosts)
@@ -39,47 +31,32 @@ public class HelloApplication extends Application {
 
 
         //game scene
-        Scene scene = new Scene(backgroundPane, BOARD_WIDTH, BOARD_HEIGHT);
+        Scene scene = new Scene(mazeView, BOARD_WIDTH, BOARD_HEIGHT);
 
+        // Take user direction key
 
-        // Set up event handling for key presses
         scene.setOnKeyPressed(e->{
             switch(e.getCode()){
-                case UP :
-                    pacman.moveUp();
-                    pacman.rotateToTop();
+                case RIGHT :
+                    pacman.Last_press = 0;   //to set last press right
                     break;
                 case DOWN:
-                    pacman.moveDown();
-                    pacman.rotateToBottom();
+                    pacman.Last_press = 1;   //to set last press down
                     break;
-                case RIGHT:
-                    pacman.moveRight();
-                    pacman.reflectVerticallyToRight();
+                case UP:
+                    pacman.Last_press = 2;    //to set last press up
                     break;
                 case LEFT:
-                    pacman.moveLeft();
-                    pacman.reflectVerticallyToLeft();
+                    pacman.Last_press = 3;       //to set last press left
                     break;
             }
         });
+        pacman.Countinos_Motion.setCycleCount(-1);
+        pacman.Countinos_Motion.play();
+
         primaryStage.setScene(scene);
         primaryStage.setTitle("Pac-Man Game");
         primaryStage.show();
-
-//        Timeline checklife = new Timeline(
-//                new KeyFrame(Duration.millis(2 ), e -> {
-//                    if((pacman.getCurrentRow()==ghost1.getI()&&pacman.getJ()==ghost1.getJ())
-//                            ||(pacman.getCurrentRow()==ghost2.getI()&&pacman.getCurrentColumn()==ghost2.getJ())
-//                            ||(pacman.getCurrentRow()==ghost3.getI()&&pacman.getCurrentColumn()==ghost3.getJ())
-//                            ||(pacman.getCurrentRow()==ghost4.getI()&&pacman.getCurrentColumn()==ghost4.getJ())){
-//                        mazeView.getChildren().remove(pacman.character_gif);
-//                        ghostTM.stop();
-//
-//                    }
-//                }));
-//        checklife.setCycleCount(-1);
-//        checklife.play();
     }
     public Ghost[] createGhosts(MazeView mazeView,int level){
         Ghost[] ghosts = new Ghost[4];
