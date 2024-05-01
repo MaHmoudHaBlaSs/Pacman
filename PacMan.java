@@ -10,7 +10,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 
-public class PacMan extends GifCharacter {
+public class PacMan extends Character {
     private Maze maze ;
     protected MazeView mazeView;
     private int score = 0;
