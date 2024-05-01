@@ -1,75 +1,82 @@
 package org.example.gamedemo;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 
-public class PacMan extends Character{
+public class PacMan extends Character {
+    private Maze maze ;
+    protected MazeView mazeView;
     private int score = 0;
-
     public PacMan(int startingI,int startingJ,MazeView mazeView){
-        super(mazeView, new Image("pacman.gif"));
-        // MazeView extends Pane class.
-        super.mazeView = mazeView;
+        this.mazeView = mazeView;
         maze = mazeView.getMaze();
-        i = startingI;
-        j = startingJ;
+        currentRow = startingI;
+        currentColumn = startingJ;
 
-        // Set the size (adjust as needed)
-        character_gif.setFitWidth(CELL_SIZE+10);
-        character_gif.setFitHeight(CELL_SIZE+10);
+        // Create the ImageView , stick it to the maze
+        ImageView gif = new ImageView("pacman.gif");
+        this.getChildren().add(gif);
+        mazeView.getChildren().add(this);
+        setGif(gif);
 
         // Set the initial position
-        character_gif.setX(j*CELL_SIZE-5);
-        character_gif.setY(i*CELL_SIZE);
+        setPosition();
+
+        // Set the size (adjust as needed)
+        gif.setFitWidth(CELL_SIZE+10);
+        gif.setFitHeight(CELL_SIZE+10);
 
     }
-
-    @Override
+    // @Override
     public void moveRight(){
-        if(!maze.isWall(i,j+1)) {
-            j++;
+        if(!maze.isWall(currentRow,currentColumn+1)) {
+            currentColumn++;
             setPosition();
             updateScore();
         }
     }
-    @Override
+    //@Override
     public void moveLeft(){
-        if(!maze.isWall(i,j-1)) {
-            j--;
+        if(!maze.isWall(currentRow,currentColumn-1)) {
+            currentColumn--;
             setPosition();
             updateScore();
         }
     }
-    @Override
+    //@Override
     public void moveUp(){
-        if(!maze.isWall(i-1,j)) {
-            i--;
+        if(!maze.isWall(currentRow-1,currentColumn)) {
+            currentRow--;
             setPosition();
             updateScore();
         }
     }
-    @Override
+    //@Override
     public void moveDown(){
-        if(!maze.isWall(i+1,j)) {
-            i++;
+        if(!maze.isWall(currentRow+1,currentColumn)) {
+            currentRow++;
             setPosition();
             updateScore();
         }
     }
 
+    // Level upgrade needed
     private void updateScore(){
-        if(maze.isPellet(i,j))
+        if(maze.isPellet(currentRow,currentColumn))
             score += 50;
-        else if(maze.isPowerPellet(i,j))
-            score += 100;
+        else if(maze.isPowerPellet(currentRow,currentColumn))
+            score += 150;
 
-        //replace the pallet cell with empty space (empty Rectangle)
-        Rectangle emptySpace = new Rectangle(j * CELL_SIZE, i * CELL_SIZE,CELL_SIZE,CELL_SIZE);
+        //replace the pallet cell with empty space
+        Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
         emptySpace.setFill(Color.TRANSPARENT);
-        maze.setEmptySpace(i,j);
-        mazeView.getChildren().remove(i* maze.getCols() + j );
-        mazeView.getChildren().add(i* maze.getCols() + j, emptySpace);
+        maze.setEmptySpace(currentRow,currentColumn);
+        mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn );
+        mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
     }
+
 }
