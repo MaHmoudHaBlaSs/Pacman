@@ -1,5 +1,4 @@
 package org.example.gamedemo;
-
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -7,7 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Circle;
 
-public class MazeView extends Pane {
+public class MazeView extends Pane{
     private static final int CELL_SIZE = 40; // Controls the screen Dimensions (be Careful)
     private Maze maze;
     public MazeView(Maze maze) {
@@ -38,7 +37,7 @@ public class MazeView extends Pane {
                 else if (maze.isPellet(i, j))
                 {
                     //Coordinates : X(Rows*Width+.5*CELL) -> Center of the Cell....               Radius
-                    Circle pellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, 4);
+                    Circle pellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, 6);
                     pellet.setFill(Color.YELLOW); // Adjust pellet color
                     pellet.setStroke(Color.BLACK);
                     pellet.setStrokeWidth(1);
@@ -47,7 +46,7 @@ public class MazeView extends Pane {
                 else if (maze.isPowerPellet(i, j))
                 {
                     // Same as pellet but with larger Radius
-                    Circle powerPellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, 5);
+                    Circle powerPellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, 9);
                     powerPellet.setFill(Color.ORANGE); // Adjust power pellet color
                     powerPellet.setStrokeWidth(1.3);
                     powerPellet.setStroke(Color.RED);
