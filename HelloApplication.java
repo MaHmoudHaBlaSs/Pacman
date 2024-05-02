@@ -147,14 +147,9 @@ public class HelloApplication extends Application {
         Scene charactersScene = new Scene(charactersPane, BOARD_WIDTH/1.15, BOARD_HEIGHT/1.25);
 
         // How we Enter Characters Menu
-        charactersBt.setOnAction(event ->{
-            stage.setScene(charactersScene);
-        });
+        charactersBt.setOnAction(event ->{stage.setScene(charactersScene);});
 
         // Handle Menu Buttons Actions
-        backBt.setOnAction(event -> {
-            stage.setScene(mainMenuScene);
-        });
         pacManBt.setOnAction(event -> {
             charactersPane.getChildren().add(pacmanGif);
             charactersPane.getChildren().removeAll(pacboyGif, pacwomanGif);
@@ -175,13 +170,11 @@ public class HelloApplication extends Application {
         });
 
         // How we Exit Characters Scene
-        chooseBt.setOnAction(event -> {
-            stage.setScene(mainMenuScene);
-        });
+        backBt.setOnAction(event -> {stage.setScene(mainMenuScene);pacmanGifs[0]=1;});
+        chooseBt.setOnAction(event -> {stage.setScene(mainMenuScene);});
         /*-----------------------------------------------------------------------*/
 
         startBt.setOnAction(event -> {
-
             // Setting the Background
             ImageView background = new ImageView(new Image("Background.gif"));
             background.setFitWidth(BOARD_WIDTH);
