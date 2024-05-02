@@ -2,9 +2,7 @@ package org.example.gamedemo;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -14,16 +12,35 @@ public class PacMan extends Character {
     private Maze maze ;
     protected MazeView mazeView;
     private int score = 0;
-    int Last_press=0 ;    // To set the Start direction to the right
-    Timeline Countinos_Motion;
-    public PacMan(int startingI,int startingJ,MazeView mazeView){
+    private int lastPress=0 ;    // To set the Start direction to the right
+    private Timeline Countinuous_Motion;
+
+    public Timeline getCountinuous_Motion() {
+        return Countinuous_Motion;
+    }
+    public int getlastPress(){
+        return lastPress;
+    }
+    public void setlastPress(int lastPress){
+        this.lastPress = lastPress;
+    }
+    public void setCountinuous_Motion(Timeline countinuous_Motion) {
+        Countinuous_Motion = countinuous_Motion;
+    }
+
+    public PacMan(int startingI, int startingJ, MazeView mazeView, int gifNumber){
         this.mazeView = mazeView;
         maze = mazeView.getMaze();
         currentRow = startingI;
         currentColumn = startingJ;
 
         // Create the ImageView , stick it to the maze
-        ImageView gif = new ImageView("pacman02.gif");
+        ImageView gif = switch(gifNumber){
+            case 1 -> new ImageView("PacmanEye.gif");
+            case 2 -> new ImageView("pacboy.gif");
+            case 3 -> new ImageView("pacwoman.gif");
+            default -> null;
+        };
         this.getChildren().add(gif);//-----------
         mazeView.getChildren().add(this);
         setGif(gif);
@@ -32,12 +49,12 @@ public class PacMan extends Character {
         setPosition();
 
         // Set the size (adjust as needed)
-        gif.setFitWidth(CELL_SIZE+10);
-        gif.setFitHeight(CELL_SIZE+10);
+        gif.setFitWidth(CELL_SIZE-10);
+        gif.setFitHeight(CELL_SIZE-10);
 
         // to control PacMan Motion
-        Countinos_Motion = new Timeline(new KeyFrame(Duration.millis(300),e->{
-            switch(Last_press){
+        Countinuous_Motion = new Timeline(new KeyFrame(Duration.millis(250), e->{
+            switch(lastPress){
                 case 0 :
                     this.moveRight();
                     this.reflectVerticallyToRight();
@@ -89,7 +106,6 @@ public class PacMan extends Character {
             updateScore();
         }
     }
-
     private void updateScore(){
         if(maze.isPellet(currentRow,currentColumn))
             score += 1;
@@ -98,7 +114,7 @@ public class PacMan extends Character {
 
         //replace the pallet cell with empty space
         Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
-        emptySpace.setFill(Color.WHITE);
+        emptySpace.setFill(Color.TRANSPARENT);
         maze.setEmptySpace(currentRow,currentColumn);
         mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn );
         mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
