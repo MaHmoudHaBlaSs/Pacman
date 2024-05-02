@@ -1,4 +1,6 @@
-package org.example.gamedemo;
+package com.example.helloapplication;
+
+
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -10,16 +12,22 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+
+import java.io.File;
 
 public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
-    int level = 1;
+    int level = 5 ;
     int startGame = 0;
     @Override
     public void start(Stage stage) {
@@ -30,6 +38,11 @@ public class HelloApplication extends Application {
         // We created this array of 1 element to perform operations on it in Lambda Expression
         // Because it doesn't allow normal variables expressions.
         int[] pacmanGifs = {1};
+
+        // create object to control sound effects
+        GameSounds sound = new GameSounds();
+
+
 
         /*----------------------------------------Main Menu-----------------------------------------*/
         BorderPane mainMenuPane = new BorderPane();
@@ -147,9 +160,14 @@ public class HelloApplication extends Application {
         Scene charactersScene = new Scene(charactersPane, BOARD_WIDTH/1.15, BOARD_HEIGHT/1.25);
 
         // How we Enter Characters Menu
-        charactersBt.setOnAction(event ->{stage.setScene(charactersScene);});
+        charactersBt.setOnAction(event ->{
+            stage.setScene(charactersScene);
+        });
 
         // Handle Menu Buttons Actions
+        backBt.setOnAction(event -> {
+            stage.setScene(mainMenuScene);
+        });
         pacManBt.setOnAction(event -> {
             charactersPane.getChildren().add(pacmanGif);
             charactersPane.getChildren().removeAll(pacboyGif, pacwomanGif);
@@ -170,11 +188,14 @@ public class HelloApplication extends Application {
         });
 
         // How we Exit Characters Scene
-        backBt.setOnAction(event -> {stage.setScene(mainMenuScene);pacmanGifs[0]=1;});
-        chooseBt.setOnAction(event -> {stage.setScene(mainMenuScene);});
+        chooseBt.setOnAction(event -> {
+            stage.setScene(mainMenuScene);
+        });
         /*-----------------------------------------------------------------------*/
 
         startBt.setOnAction(event -> {
+
+
             // Setting the Background
             ImageView background = new ImageView(new Image("Background.gif"));
             background.setFitWidth(BOARD_WIDTH);
@@ -189,14 +210,36 @@ public class HelloApplication extends Application {
             movePacman(gameScene, pacman);
 
             Timeline positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
+
                 for(Ghost ghost : ghosts)
-                    if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow())
-                        stage.close();
-            }));
+                    if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()){
+
+                        sound.deathSound.play();
+                        pacman.getCountinuous_Motion().stop();
+                        pacman.getChildren().remove(pacman.getGif());
+                        gamePane.getChildren().remove(pacman);
+                        ghost.animation.stop();
+            }}));
             positionChecker.setCycleCount(-1);
             positionChecker.play();
 
         });
+
+        // Set btns sound effects
+
+        charactersBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
+        backBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
+        pacBoyBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
+        pacWomanBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
+        chooseBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
+        startBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
+        aboutBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
+
+
+        // Add sound to start menu
+        mainMenuPane.getChildren().add(sound);
+        sound.start_sound.play();
+
 
         /*------------------------------------------------------------------------------------------*/
         stage.setScene(mainMenuScene);
