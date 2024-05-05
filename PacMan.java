@@ -1,6 +1,4 @@
-package com.example.helloapplication;
-
-
+package org.example.gamedemo;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -10,16 +8,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 
-public class PacMan extends GifCharacter {
+public class PacMan extends Character {
     private Maze maze ;
     protected MazeView mazeView;
     private int score = 0;
     private int lastPress=0 ;    // To set the Start direction to the right
     private Timeline Countinuous_Motion;
-
-    // create object to control sound effects
-    GameSounds sound = new GameSounds();
-
 
     public Timeline getCountinuous_Motion() {
         return Countinuous_Motion;
@@ -39,7 +33,6 @@ public class PacMan extends GifCharacter {
         maze = mazeView.getMaze();
         currentRow = startingI;
         currentColumn = startingJ;
-        mazeView.getChildren().add(sound);
 
         // Create the ImageView , stick it to the maze
         ImageView gif = switch(gifNumber){
@@ -65,22 +58,18 @@ public class PacMan extends GifCharacter {
                 case 0 :
                     this.moveRight();
                     this.reflectVerticallyToRight();
-
                     break;
                 case 1:
                     this.moveDown();
                     this.rotateToBottom();
-
                     break;
                 case 2:
                     this.moveUp();
                     this.rotateToTop();
-
                     break;
                 case 3:
                     this.moveLeft();
                     this.reflectVerticallyToLeft();
-
                     break;
             }
         }));
@@ -118,26 +107,15 @@ public class PacMan extends GifCharacter {
         }
     }
     private void updateScore(){
-        if(maze.isPellet(currentRow,currentColumn)) {
-            score += 1;
+        if(maze.isPellet(currentRow,currentColumn)) {score += 1;maze.setPellets(maze.getPellets()-1);}
+        else if(maze.isPowerPellet(currentRow,currentColumn)) {score += 3;maze.setPellets(maze.getPellets()-1);}
 
-            sound.eatPellet.play();
-            sound.eatPellet.stop();
-        }
-        else if(maze.isPowerPellet(currentRow,currentColumn)) {
-            score += 3;
-
-            sound.eatPellet.play();
-            sound.eatPellet.stop();
-
-        }
         //replace the pallet cell with empty space
         Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
         emptySpace.setFill(Color.TRANSPARENT);
         maze.setEmptySpace(currentRow,currentColumn);
         mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn );
         mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
-
     }
 
 }
