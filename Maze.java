@@ -9,6 +9,13 @@ public class Maze {
     private boolean[][] adjMatrix;//to represent a graph
     private final int ROWS ;
     private final int COLS;
+    private int pellets = 0; // for 4 Power Pellets in any map
+    public Maze(int width, int height , int cellSize, int mazeNum) {
+        ROWS = height/cellSize;
+        COLS = width/cellSize;
+        grid = new Cell[ROWS][COLS];
+        generateMaze(mazeNum);
+    }
 
     public int getRows() {
         return ROWS;
@@ -18,14 +25,15 @@ public class Maze {
         return COLS;
     }
 
-    public Maze(int width, int height ,int cellSize) {
-        ROWS = height/cellSize;
-        COLS = width/cellSize;
-        grid = new Cell[ROWS][COLS];
-        generateMaze();
+    public void setPellets(int pellets) {
+        this.pellets = pellets;
     }
 
-    private void generateMaze() {
+    public int getPellets() {
+        return pellets;
+    }
+
+    private void generateMaze(int mazeNum) {
         // Generate maze layout with walls, let's fill the outer edges with walls
         for (int i = 0; i < ROWS; i++) {
             grid[i][0] = Cell.WALL;
@@ -37,16 +45,20 @@ public class Maze {
         }
 
         // Implement maze generation algorithm to create interior walls
-        generateInteriorWalls();
+        generateInteriorWalls(mazeNum);
 
         // Place pellets and power pellets
         placePellets();
         constructAdjMatrix();
     }
     // another interiorWallGenerator needed
-    private void generateInteriorWalls() {
-        int[][] arr ;
-        arr = new int[][]{{2, 4, 5, 7, 8, 9}, {2, 7}, {2, 3, 5, 7, 9}, {5, 9}, {1, 3, 4, 5, 6, 7, 9}, {1, 5}, {3, 5, 7, 8, 9}};
+    private void generateInteriorWalls(int mazeNum) {
+        int[][] arr = switch (mazeNum){
+          case 1 -> new int[][] {{2, 4, 5, 7, 8, 9}, {2, 7}, {2, 3, 5, 7, 9}, {5, 9}, {1, 3, 4, 5, 6, 7, 9}, {1, 5}, {3, 5, 7, 8, 9}};
+          case 2 -> new int[][] {{2, 4, 5, 6, 7, 8, 9}, {2, 5}, {2, 3, 5, 7, 8}, {2, 8}, {2, 3, 5, 6, 8}, {5,8}, {2, 4, 5, 7, 8}};
+          case 3 -> new int[][]{{2, 3, 5, 6, 7, 9}, {0}, {2, 3, 5, 7,8, 9}, {5, 9}, {2, 3, 5, 6, 7, 9}, {3, 5}, {1,3, 5, 7, 8}};
+          default -> null;
+        };
         for(int i =0; i<arr.length; i++){
             for(int j = 0 ; j<arr[i].length ;j++){
                 grid[i+2][arr[i][j]] = Cell.WALL;
@@ -56,20 +68,40 @@ public class Maze {
             }
         }
         int[] middle= {1,3,7,17,15,11};
-        for(int i=0;i<middle.length;i++)
-            grid[9][middle[i]] = Cell.WALL;
-        grid[2][9] = Cell.EMPTY_SPACE;
-        grid[8][9] = Cell.EMPTY_SPACE;
-        grid[10][9] = Cell.EMPTY_SPACE;
-        grid[16][9] = Cell.EMPTY_SPACE;
+        for(int i=0;i<middle.length;i++){grid[9][middle[i]] = Cell.WALL;}
+
+        switch (mazeNum){
+            case 1:
+                grid[2][9] = Cell.EMPTY_SPACE;
+                grid[8][9] = Cell.EMPTY_SPACE;
+                grid[10][9] = Cell.EMPTY_SPACE;
+                grid[16][9] = Cell.EMPTY_SPACE;
+                break;
+            case 2:
+                grid[2][9] = Cell.EMPTY_SPACE;
+                grid[9][7] = Cell.EMPTY_SPACE;
+                grid[9][11] = Cell.EMPTY_SPACE;
+                grid[8][2] = Cell.EMPTY_SPACE;
+                grid[10][2] = Cell.EMPTY_SPACE;
+                grid[8][16] = Cell.EMPTY_SPACE;
+                grid[10][16] = Cell.EMPTY_SPACE;
+                break;
+            case 3:
+                grid[1][9] = Cell.WALL;
+                grid[17][9] = Cell.WALL;
+                grid[10][9] = Cell.WALL;
+                grid[9][1] = Cell.EMPTY_SPACE;
+                grid[9][17] = Cell.EMPTY_SPACE;
+                break;
+        }
     }
     private void placePellets() {
-        Random random = new Random();
-        // Place pellets randomly in the maze
+        // Place pellets in the maze
         for (int i = 1; i < ROWS - 1; i++) {
             for (int j = 1; j < COLS - 1; j++) {
                 if (grid[i][j] != Cell.WALL) {
-                    grid[i][j] = Cell.PELLET;// Place a pellet with a probability of 0.3
+                    grid[i][j] = Cell.PELLET;// Place a pellet
+                    pellets++;
                 }
             }
         }
@@ -92,9 +124,12 @@ public class Maze {
     public void setEmptySpace(int row,int column){
         grid[row][column] = Cell.EMPTY_SPACE;
     }
+    public boolean isFinishedMap(){
+        return pellets == 0;
+    }
 
-    /*--------------------------------------------------------------------------------------------------------*/
-    //Danger Area.....
+    /*-------------------------------------------------Danger Area------------------------------------------*/
+    //Directed Ghost Helper Methods.
     public int indicesToCell(int row,int column){
         return row*ROWS + column;
     }
