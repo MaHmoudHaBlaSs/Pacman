@@ -1,40 +1,44 @@
-package com.example.helloapplication;
+package org.example.gamedemo;
 
-
-
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
-    int level = 5 ;
+    int level = 1 ;
     int startGame = 0;
+    private static Stage stage;
     @Override
     public void start(Stage stage) {
-        Pane gamePane = new Pane();
-        //game scene
-        MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE));
-        Scene gameScene = new Scene(gamePane, BOARD_WIDTH, BOARD_HEIGHT);
         // We created this array of 1 element to perform operations on it in Lambda Expression
         // Because it doesn't allow normal variables expressions.
         int[] pacmanGifs = {1};
@@ -43,47 +47,65 @@ public class HelloApplication extends Application {
         GameSounds sound = new GameSounds();
 
 
-
         /*----------------------------------------Main Menu-----------------------------------------*/
-        BorderPane mainMenuPane = new BorderPane();
+        Pane mainMenuPane = new Pane();
+        Polygon buttonShape1 = new Polygon(0,0,200,0,230,30,30,30);
+        Polygon buttonShape2 = new Polygon(30,0,230,0,200,30,0,30);
 
-        ImageView backgroundGif = new ImageView(new Image("MainMenu.gif"));
+        Image mainImage = new Image("mainMenuPic.jpg");
+        ImageView mainImageView = new ImageView(mainImage);
+        mainImageView.setFitWidth(BOARD_WIDTH/1.15);
+        mainImageView.setFitHeight(BOARD_HEIGHT/1.25);
+
+        Button []button = new Button[4];
+
+        button[0] = new Button("Play");
+        button[1] = new Button("CHARACTERS");
+        button[2] = new Button("MAPS");
+        button[3] = new Button("INFO");
+
+        for(int i=0 ; i< 4 ; i++){
+
+            button[i].setFont(Font.font("Comic Sans MS",FontWeight.EXTRA_BOLD, FontPosture.ITALIC,20));
+            button[i].setTextFill(Color.DARKTURQUOISE);
+            button[i].setStyle("-fx-background-color:black ; -fx-border-color:SNOW ;-fx-border-width: 0.7;");
+            button[i].setPrefSize(200, 30);
+        }
+
+        button[0].setShape(buttonShape1);
+        button[1].setShape(buttonShape2);
+        button[2].setShape(buttonShape1);
+        button[3].setShape(buttonShape2);
 
         // Create a VBox
-        VBox vbox = new VBox();
+        VBox buttonsPane = new VBox();
+        buttonsPane.setSpacing(8);
+        buttonsPane.getChildren().addAll(button[0],button[1] , button[2] ,button[3]);
+        buttonsPane.setLayoutX(39);
+        buttonsPane.setLayoutY(352);
 
-        // Add buttons to the VBox
-        Button startBt = new Button("Start");
-        startBt.setStyle("-fx-background-color: transparent;");
-        startBt.setFont(new Font("Comic Sans MS", 25));
-        startBt.setTextFill(Color.CYAN);
+        for(Button testBt:button){
+            //MouseEntered event
+            testBt.setOnMouseEntered(e->{
+                testBt.setTextFill(Color.BLACK);
+                testBt.setStyle("-fx-background-color:orange ;");
+                testBt.setPrefSize(240, 40);
+                sound.btnSound.play(); sound.btnSound.stop();
+            });
+            //MouseExited event
+            testBt.setOnMouseExited(e->{
+                testBt.setTextFill(Color.DARKTURQUOISE);
+                testBt.setStyle("-fx-background-color:black ; -fx-border-color:SNOW ;-fx-border-width: 0.5;");
+                testBt.setPrefSize(200, 30);
+            });
+        }
 
-        Button charactersBt = new Button("Characters");
-        charactersBt.setStyle("-fx-background-color: transparent;");
-        charactersBt.setFont(new Font("Comic Sans MS", 25));
-        charactersBt.setTextFill(Color.CYAN);
-
-        Button aboutBt = new Button("About");
-        aboutBt.setStyle("-fx-background-color: transparent;");
-        aboutBt.setFont(new Font("Comic Sans MS", 25));
-        aboutBt.setTextFill(Color.CYAN);
-
-        vbox.setPadding(new Insets(10, 10, 10, 10));
-        vbox.setSpacing(20);
-
-        vbox.getChildren().addAll(startBt, charactersBt, aboutBt);
-        vbox.setAlignment(Pos.CENTER);
-
-        mainMenuPane.setRight(vbox);
-        BorderPane.setAlignment(vbox, Pos.CENTER);
-        mainMenuPane.setTop(backgroundGif);
-        mainMenuPane.setBackground(new Background(new BackgroundFill(Color.BLACK, null, null)));
-
-        Scene mainMenuScene = new Scene(mainMenuPane, BOARD_WIDTH/1.15, BOARD_HEIGHT/1.15);
+        mainMenuPane.getChildren().addAll(mainImageView,buttonsPane);
+        Scene mainMenuScene = new Scene(mainMenuPane,BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25);
 
         /*------------------------------Characters Menu-------------------------------*/
         StackPane charactersPane = new StackPane();
-        VBox charactersBtns = new VBox();
+        VBox charactersBtnsVbox = new VBox();
         charactersPane.setBackground(new Background(new BackgroundFill(Color.DARKGREY,null,null)));
 
         ImageView characterBackground = new ImageView(new Image("CharacterBackground.jpg"));
@@ -109,92 +131,110 @@ public class HelloApplication extends Application {
         pacboyGif.setTranslateY(17);
         pacboyGif.setTranslateX(110);
 
+        // Setting Characters Buttons
+        Button[] charactersBtns = new Button[5];
+        charactersBtns[0] = new Button("Pacman");
+        charactersBtns[1] = new Button("Pacboy");
+        charactersBtns[2] = new Button("Pacwoman");
+        charactersBtns[3] = new Button("Back");
+        charactersBtns[4] = new Button("Choose!");
+
+        for(Button btn: charactersBtns){
+            btn.setStyle("-fx-background-color: transparent;");
+            btn.setFont(new Font("Comic Sans MS", 30));
+            btn.setTextFill(Color.CYAN);
+            addButtonEffect(btn, Color.CYAN, Color.MAGENTA);
+        }
+
+        for(Button btn: charactersBtns){
+            // Mouse Entered Event
+            btn.setOnMouseEntered(ev -> {
+                sound.btnSound.play(); sound.btnSound.stop();
+                btn.setTextFill(Color.MAGENTA);
+                btn.setScaleX(1.2);
+                btn.setScaleY(1.2);
+            });
+            // Mouse Exited Events
+            btn.setOnMouseExited(ev -> {
+                btn.setTextFill(Color.CYAN);
+                btn.setScaleX(1);
+                btn.setScaleY(1);
+            });
+        }
+
+        // Setting the Back Button
+        charactersBtns[3].setStyle("-fx-background-color: transparent;");
+        charactersBtns[3].setFont(new Font("Comic Sans MS", 30));
+        charactersBtns[3].setTextFill(Color.DARKRED);
+        addButtonEffect(charactersBtns[3], Color.DARKRED, Color.RED);
+        charactersBtns[3].setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
 
         // Setting the Choose Button
-        Button chooseBt = new Button("Choose!");
-        chooseBt.setStyle("-fx-background-color: transparent;");
-        chooseBt.setFont(new Font("Comic Sans MS", 30));
-        chooseBt.setTextFill(Color.GREEN);
-        chooseBt.setTranslateY(1);
-        chooseBt.setTranslateX(380);
-        addButtonEffect(chooseBt, Color.GREEN, Color.LIGHTGREEN);
-        chooseBt.setVisible(false);
-
-        // Setting the Pacman Button
-        Button pacManBt = new Button("Pacman");
-        pacManBt.setStyle("-fx-background-color: transparent;");
-        pacManBt.setFont(new Font("Comic Sans MS", 30));
-        pacManBt.setTextFill(Color.CYAN);
-        addButtonEffect(pacManBt, Color.CYAN, Color.MAGENTA);
-
-        // Setting the Pacwoman Button
-        Button pacWomanBt = new Button("Pacwoman");
-        pacWomanBt.setStyle("-fx-background-color: transparent;");
-        pacWomanBt.setFont(new Font("Comic Sans MS", 30));
-        pacWomanBt.setTextFill(Color.CYAN);
-        addButtonEffect(pacWomanBt, Color.CYAN, Color.MAGENTA);
-
-        // Setting the Pacboy Button
-        Button pacBoyBt = new Button("Pacboy");
-        pacBoyBt.setStyle("-fx-background-color: transparent;");
-        pacBoyBt.setFont(new Font("Comic Sans MS", 30));
-        pacBoyBt.setTextFill(Color.CYAN);
-        addButtonEffect(pacBoyBt, Color.CYAN, Color.MAGENTA);
-        // Setting the Back Buton
-        Button backBt = new Button("Back");
-        backBt.setStyle("-fx-background-color: transparent;");
-        backBt.setFont(new Font("Comic Sans MS", 30));
-        backBt.setTextFill(Color.DARKRED);
-        addButtonEffect(backBt, Color.DARKRED, Color.RED);
-
-        // Adjusting charactersBtns VBox
-        charactersBtns.setAlignment(Pos.CENTER_LEFT);
-        charactersBtns.setLayoutX(0);
-        charactersBtns.setLayoutY(200);
-        charactersBtns.getChildren().addAll(pacManBt, pacWomanBt, pacBoyBt, backBt, chooseBt);
-        charactersBtns.setSpacing(25);
-        charactersBtns.setPadding(new Insets(10, 10, 10, 10));
+        charactersBtns[4].setTextFill(Color.GREEN);
+        charactersBtns[4].setTranslateY(1);
+        charactersBtns[4].setTranslateX(380);
+        addButtonEffect(charactersBtns[4], Color.GREEN, Color.LIGHTGREEN);
+        charactersBtns[4].setVisible(false);
+        charactersBtns[4].setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
 
 
-        charactersPane.getChildren().add(charactersBtns);
+        // Adjusting charactersBtnsVbox (VBox)
+        charactersBtnsVbox.setAlignment(Pos.CENTER_LEFT);
+        charactersBtnsVbox.setLayoutX(0);
+        charactersBtnsVbox.setLayoutY(200);
+        charactersBtnsVbox.getChildren().addAll(charactersBtns[0], charactersBtns[2], charactersBtns[1], charactersBtns[3], charactersBtns[4]);
+        charactersBtnsVbox.setSpacing(25);
+        charactersBtnsVbox.setPadding(new Insets(10, 10, 10, 10));
+
+        charactersPane.getChildren().add(charactersBtnsVbox);
         Scene charactersScene = new Scene(charactersPane, BOARD_WIDTH/1.15, BOARD_HEIGHT/1.25);
 
         // How we Enter Characters Menu
-        charactersBt.setOnAction(event ->{
+        button[1].setOnAction(event ->{
             stage.setScene(charactersScene);
         });
 
         // Handle Menu Buttons Actions
-        backBt.setOnAction(event -> {
+        // Setting Back Button
+        charactersBtns[3].setOnAction(event -> {
             stage.setScene(mainMenuScene);
         });
-        pacManBt.setOnAction(event -> {
+        // Setting Pacman Button
+        charactersBtns[0].setOnAction(event -> {
+            charactersPane.getChildren().removeAll(pacmanGif, pacwomanGif, pacboyGif);
             charactersPane.getChildren().add(pacmanGif);
-            charactersPane.getChildren().removeAll(pacboyGif, pacwomanGif);
             pacmanGifs[0] = 1;
-            chooseBt.setVisible(true);
+            charactersBtns[4].setVisible(true);
         });
-        pacBoyBt.setOnAction(event -> {
+        // Setting Pacboy Button
+        charactersBtns[1].setOnAction(event -> {
+            charactersPane.getChildren().removeAll(pacmanGif, pacwomanGif, pacboyGif);
             charactersPane.getChildren().add(pacboyGif);
-            charactersPane.getChildren().removeAll(pacmanGif, pacwomanGif);
             pacmanGifs[0] = 2;
-            chooseBt.setVisible(true);
+            charactersBtns[4].setVisible(true);
         });
-        pacWomanBt.setOnAction(event -> {
+        // Setting Pacwoman Button
+        charactersBtns[2].setOnAction(event -> {
+            charactersPane.getChildren().removeAll(pacmanGif, pacwomanGif, pacboyGif);
             charactersPane.getChildren().add(pacwomanGif);
-            charactersPane.getChildren().removeAll(pacboyGif, pacmanGif);
             pacmanGifs[0] = 3;
-            chooseBt.setVisible(true);
+            charactersBtns[4].setVisible(true);
         });
 
-        // How we Exit Characters Scene
-        chooseBt.setOnAction(event -> {
+        // How we Exit Characters Scene (Choose Button)
+        charactersBtns[4].setOnAction(event -> {
             stage.setScene(mainMenuScene);
         });
-        /*-----------------------------------------------------------------------*/
+        /*---------------------------End Of Characters Menu---------------------------*/
+        /*------------------------------About Menu-------------------------------*/
 
-        startBt.setOnAction(event -> {
-
+        /*------------------------------End Of About Menu-------------------------------*/
+        /*------------------------------Start (Game)-------------------------------*/
+        // How we enter the game (Play Button)
+        button[0].setOnAction(event -> {
+            Pane gamePane = new Pane();
+            MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE, 1));
+            Scene gameScene = new Scene(gamePane, BOARD_WIDTH, BOARD_HEIGHT);
 
             // Setting the Background
             ImageView background = new ImageView(new Image("Background.gif"));
@@ -206,47 +246,156 @@ public class HelloApplication extends Application {
             PacMan pacman = new PacMan(1, 1,mazeView, pacmanGifs[0]);
             Ghost[] ghosts = createGhosts(mazeView,level);
             gamePane.getChildren().add(mazeView);
-            stage.setScene(gameScene);
             movePacman(gameScene, pacman);
 
-            Timeline positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
+            stage.setScene(gameScene);
 
-                for(Ghost ghost : ghosts)
-                    if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()){
+            // Setting Ending Effects (Win - Lose)
+            ImageView[] endingImgs = new ImageView[2];
+            endingImgs[0] = new ImageView("GameoverScreen.gif");
+            endingImgs[1] = new ImageView("WinScreen.jpg");
+
+            ScaleTransition[] imgsTransition = new ScaleTransition[2];
+
+            for(int i = 0; i < 2; i++){
+                // Setting Image Properties
+                endingImgs[i].setFitHeight(5);
+                endingImgs[i].setFitHeight(5);
+                endingImgs[i].setPreserveRatio(true);
+                endingImgs[i].setLayoutX(380);
+                endingImgs[i].setLayoutY(380);
+                // Setting Image's Transition Effect
+                imgsTransition[i] = new ScaleTransition();
+                imgsTransition[i].setNode(endingImgs[i]);
+                imgsTransition[i].setDuration(Duration.seconds(.5));
+                imgsTransition[i].setToX(153);
+                imgsTransition[i].setToY(152);
+
+                gamePane.getChildren().add(endingImgs[i]);
+                endingImgs[i].setVisible(false);
+            }
+
+            // Game over Prompt Texts.
+            Text[] endGameTexts = new Text[3];
+            endGameTexts[0] = new Text("Press 'Enter' For Main Menu");
+            endGameTexts[0].setLayoutX(240);
+            endGameTexts[0].setLayoutY(630);
+
+            endGameTexts[1] = new Text("Press 'ESC' To Exit");
+            endGameTexts[1].setLayoutX(291);
+            endGameTexts[1].setLayoutY(690);
+
+            endGameTexts[2] = new Text("You Won");
+            endGameTexts[2].setLayoutX(306);
+            endGameTexts[2].setLayoutY(100);
+
+            FadeTransition[] txtsFadeTransition = new FadeTransition[3];
+            StrokeTransition[] txtsStrokeTransition = new StrokeTransition[3];
+
+            for(int i = 0; i< 3; i++){
+
+                // Setting Text Properties
+                endGameTexts[i].setVisible(false);
+                endGameTexts[i].setStyle("-fx-background-color: transparent;");
+                endGameTexts[i].setFont( Font.font("Arial", FontWeight.BOLD, 24));
+                endGameTexts[i].setFill(Color.CORNSILK);
+                endGameTexts[i].setStroke(Color.WHITE);
+                endGameTexts[i].setStrokeWidth(1);
+                // Setting Fading Transition
+                txtsFadeTransition[i] = new FadeTransition(Duration.seconds(1), endGameTexts[i]);
+                txtsFadeTransition[i].setToValue(0.1);
+                txtsFadeTransition[i].setCycleCount(-1);
+                txtsFadeTransition[i].setAutoReverse(true);
+                // Setting Stroke transition
+                txtsStrokeTransition[i] = new StrokeTransition(Duration.seconds(1), endGameTexts[i]);
+                txtsStrokeTransition[i].setFromValue(Color.WHITE);
+                txtsStrokeTransition[i].setToValue(Color.TRANSPARENT);
+                txtsStrokeTransition[i].setAutoReverse(true);
+                txtsStrokeTransition[i].setCycleCount(-1);
+                // Attaching Txt To The Pane
+                gamePane.getChildren().add(endGameTexts[i]);
+            }
+            // Over Edit For "Your Win" Text.
+            endGameTexts[2].setFont( Font.font("Arial", FontWeight.BOLD, 40));
+            endGameTexts[2].setFill(Color.GOLD);
+            txtsStrokeTransition[2].setFromValue(Color.LIGHTGOLDENRODYELLOW);
+
+            Timeline positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
+                for(Ghost ghost : ghosts){
+                    // When Pacman Get Caught
+                    if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
 
                         sound.deathSound.play();
                         pacman.getCountinuous_Motion().stop();
                         pacman.getChildren().remove(pacman.getGif());
                         gamePane.getChildren().remove(pacman);
-                        ghost.animation.stop();
-            }}));
+                        ghost.ghostMovement.stop();
+                        // Game Over
+                        endingImgs[0].setVisible(true);
+                        imgsTransition[0].play();
+                        imgsTransition[0].setOnFinished(event1 -> {
+                            // Press Enter Text
+                            endGameTexts[0].setVisible(true);
+                            txtsFadeTransition[0].play();
+                            txtsStrokeTransition[0].play();
+                            // Press ESC Text
+                            endGameTexts[1].setVisible(true);
+                            txtsFadeTransition[1].play();
+                            txtsStrokeTransition[1].play();
+
+                            gameScene.setOnKeyPressed(keyEvent -> {
+                                switch (keyEvent.getCode()) {
+                                    case ENTER -> stage.setScene(mainMenuScene);
+                                    case ESCAPE -> stage.close();
+                                }
+
+                            });
+                        });
+                    }
+                }
+                // When Pellets == 0
+                if(mazeView.getMaze().isFinishedMap())
+                {
+                    sound.deathSound.play();
+                    pacman.getCountinuous_Motion().stop();
+                    pacman.getChildren().remove(pacman.getGif());
+                    gamePane.getChildren().remove(pacman);
+                    // Win
+                    endingImgs[1].setVisible(true);
+                    imgsTransition[1].play();
+                    imgsTransition[1].setOnFinished(event1 -> {
+                        // Press Enter Text
+                        endGameTexts[0].setVisible(true);
+                        txtsFadeTransition[0].play();
+                        txtsStrokeTransition[0].play();
+                        // Press ESC Text
+                        endGameTexts[1].setVisible(true);
+                        txtsFadeTransition[1].play();
+                        txtsStrokeTransition[1].play();
+                        // You Won Text
+                        endGameTexts[2].setVisible(true);
+                        txtsFadeTransition[2].play();
+                        txtsStrokeTransition[2].play();
+
+                        gameScene.setOnKeyPressed(keyEvent -> {
+                            switch (keyEvent.getCode()) {
+                                case ENTER -> stage.setScene(mainMenuScene);
+                                case ESCAPE -> stage.close();
+                            }
+
+                        });
+                    });
+                }
+            }));
             positionChecker.setCycleCount(-1);
             positionChecker.play();
-
         });
-
-        // Set btns sound effects
-
-        charactersBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-        backBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-        pacBoyBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-        pacWomanBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-        chooseBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-        startBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-        aboutBt.setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-
-
-        // Add sound to start menu
-        mainMenuPane.getChildren().add(sound);
-        sound.start_sound.play();
-
-
-        /*------------------------------------------------------------------------------------------*/
+        /*------------------------------End of Start (Game)-------------------------------*/
+        /*----------------------------------End Of Main Menu----------------------------------------*/
         stage.setScene(mainMenuScene);
         stage.setTitle("Pac-Man Game");
         stage.show();
-
-
+        stage.setResizable(false);
     }
     public void movePacman(Scene scene, PacMan pacman) {
         scene.setOnKeyPressed(event -> {
