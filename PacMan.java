@@ -14,6 +14,7 @@ public class PacMan extends Character {
     private int score = 0;
     private int lastPress=0 ;    // To set the Start direction to the right
     private Timeline Countinuous_Motion;
+    GameSounds sound = new GameSounds();
 
     public Timeline getCountinuous_Motion() {
         return Countinuous_Motion;
@@ -107,8 +108,18 @@ public class PacMan extends Character {
         }
     }
     private void updateScore(){
-        if(maze.isPellet(currentRow,currentColumn)) {score += 1;maze.setPellets(maze.getPellets()-1);}
-        else if(maze.isPowerPellet(currentRow,currentColumn)) {score += 3;maze.setPellets(maze.getPellets()-1);}
+        if(maze.isPellet(currentRow,currentColumn)) {
+            score += 1;
+            sound.eatPellet.play();
+            maze.setPellets(maze.getPellets()-1);
+            sound.eatPellet.stop();
+        }
+        else if(maze.isPowerPellet(currentRow,currentColumn)) {
+            score += 3;
+            sound.eatPellet.play();
+            maze.setPellets(maze.getPellets()-1);
+            sound.eatPellet.stop();
+        }
 
         //replace the pallet cell with empty space
         Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
