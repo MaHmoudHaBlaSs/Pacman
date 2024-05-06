@@ -1,5 +1,6 @@
 package org.example.gamedemo;
 
+
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -36,6 +37,7 @@ public class HelloApplication extends Application {
     private static final int BOARD_HEIGHT = 760;
     int level = 1 ;
     int startGame = 0;
+    boolean death = false;   // to know pacman is still alive or die
     private static Stage stage;
     @Override
     public void start(Stage stage) {
@@ -45,6 +47,7 @@ public class HelloApplication extends Application {
 
         // create object to control sound effects
         GameSounds sound = new GameSounds();
+        sound.start_sound.play();
 
 
         /*----------------------------------------Main Menu-----------------------------------------*/
@@ -319,17 +322,19 @@ public class HelloApplication extends Application {
             endGameTexts[2].setFont( Font.font("Arial", FontWeight.BOLD, 40));
             endGameTexts[2].setFill(Color.GOLD);
             txtsStrokeTransition[2].setFromValue(Color.LIGHTGOLDENRODYELLOW);
-
+            PauseTransition delay = new PauseTransition(Duration.seconds(5));
             Timeline positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
+                System.out.println(sound.deathSound.getStatus());
+                System.out.println(death);
                 for(Ghost ghost : ghosts){
                     // When Pacman Get Caught
                     if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
 
-                        sound.deathSound.play();
+                        death = true;
                         pacman.getCountinuous_Motion().stop();
                         pacman.getChildren().remove(pacman.getGif());
                         gamePane.getChildren().remove(pacman);
-                        ghost.ghostMovement.stop();
+                        ghost.animation.stop();
                         // Game Over
                         endingImgs[0].setVisible(true);
                         imgsTransition[0].play();
@@ -345,14 +350,26 @@ public class HelloApplication extends Application {
 
                             gameScene.setOnKeyPressed(keyEvent -> {
                                 switch (keyEvent.getCode()) {
-                                    case ENTER -> stage.setScene(mainMenuScene);
-                                    case ESCAPE -> stage.close();
+                                    case ENTER :
+                                        stage.setScene(mainMenuScene);
+                                        break;
+                                    case ESCAPE :
+                                        stage.close();
+                                        break;
                                 }
 
                             });
                         });
                     }
                 }
+                //set death sound effects
+                if(death){
+                    sound.deathSound.play();
+                    death = false;
+                }else{
+                    sound.deathSound.stop();
+                }
+
                 // When Pellets == 0
                 if(mazeView.getMaze().isFinishedMap())
                 {
