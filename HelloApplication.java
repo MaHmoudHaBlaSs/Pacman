@@ -1,6 +1,7 @@
 package org.example.gamedemo;
 
 
+
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -38,6 +39,9 @@ public class HelloApplication extends Application {
     int level = 1 ;
     int startGame = 0;
     boolean death = false;   // to know pacman is still alive or die
+    boolean win = false;      // to know if user win
+    Timeline positionChecker;
+    GameSounds sound;
     private static Stage stage;
     @Override
     public void start(Stage stage) {
@@ -46,8 +50,9 @@ public class HelloApplication extends Application {
         int[] pacmanGifs = {1};
 
         // create object to control sound effects
-        GameSounds sound = new GameSounds();
+        sound = new GameSounds();
         sound.start_sound.play();
+
 
 
         /*----------------------------------------Main Menu-----------------------------------------*/
@@ -238,6 +243,7 @@ public class HelloApplication extends Application {
             Pane gamePane = new Pane();
             MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE, 1));
             Scene gameScene = new Scene(gamePane, BOARD_WIDTH, BOARD_HEIGHT);
+            sound.start_sound.stop();
 
             // Setting the Background
             ImageView background = new ImageView(new Image("Background.gif"));
@@ -322,15 +328,13 @@ public class HelloApplication extends Application {
             endGameTexts[2].setFont( Font.font("Arial", FontWeight.BOLD, 40));
             endGameTexts[2].setFill(Color.GOLD);
             txtsStrokeTransition[2].setFromValue(Color.LIGHTGOLDENRODYELLOW);
-            PauseTransition delay = new PauseTransition(Duration.seconds(5));
-            Timeline positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
-                System.out.println(sound.deathSound.getStatus());
-                System.out.println(death);
+
+            positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
                 for(Ghost ghost : ghosts){
                     // When Pacman Get Caught
                     if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
+                        death=true;
 
-                        death = true;
                         pacman.getCountinuous_Motion().stop();
                         pacman.getChildren().remove(pacman.getGif());
                         gamePane.getChildren().remove(pacman);
@@ -361,19 +365,22 @@ public class HelloApplication extends Application {
                             });
                         });
                     }
+
                 }
-                //set death sound effects
+                // play death sound
                 if(death){
+                    positionChecker.stop();
                     sound.deathSound.play();
                     death = false;
                 }else{
                     sound.deathSound.stop();
                 }
 
+
                 // When Pellets == 0
                 if(mazeView.getMaze().isFinishedMap())
                 {
-                    sound.deathSound.play();
+                    win = true ;
                     pacman.getCountinuous_Motion().stop();
                     pacman.getChildren().remove(pacman.getGif());
                     gamePane.getChildren().remove(pacman);
@@ -403,10 +410,21 @@ public class HelloApplication extends Application {
                         });
                     });
                 }
+                //set win sound effects
+                if(win){
+                    positionChecker.stop();
+                    sound.winSound.play();
+                    win = false;
+                }else{
+                    sound.winSound.stop();
+                }
+
             }));
+
             positionChecker.setCycleCount(-1);
             positionChecker.play();
         });
+
         /*------------------------------End of Start (Game)-------------------------------*/
         /*----------------------------------End Of Main Menu----------------------------------------*/
         stage.setScene(mainMenuScene);
@@ -485,5 +503,12 @@ public class HelloApplication extends Application {
             button.setScaleX(1);
             button.setScaleY(1);
         });
+    }
+    public void stopm(boolean death){
+        if(death){
+            sound.winSound.play();
+            death = false;
+            positionChecker.stop();
+        }
     }
 }
