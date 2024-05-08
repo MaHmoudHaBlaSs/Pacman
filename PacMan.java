@@ -3,6 +3,7 @@ package org.example.gamedemo;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.image.ImageView;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -14,6 +15,7 @@ public class PacMan extends Character {
     private int score = 0;
     private int lastPress=0 ;    // To set the Start direction to the right
     private Timeline Countinuous_Motion;
+
     GameSounds sound = new GameSounds();
 
     public Timeline getCountinuous_Motion() {
@@ -75,6 +77,11 @@ public class PacMan extends Character {
             }
         }));
     }
+
+    public MazeView getMazeView() {
+        return mazeView;
+    }
+
     // @Override
     public void moveRight(){
         if(!maze.isWall(currentRow,currentColumn+1)) {
@@ -110,16 +117,28 @@ public class PacMan extends Character {
     private void updateScore(){
         if(maze.isPellet(currentRow,currentColumn)) {
             score += 1;
-            sound.eatPellet.play();
+
             maze.setPellets(maze.getPellets()-1);
-            sound.eatPellet.stop();
+
+            if(sound.eatPellet.getStatus() == MediaPlayer.Status.PLAYING ){
+                sound.eatPellet.stop();
+                sound.eatPellet.play();
+            }else{
+                sound.eatPellet.play();
+            }
         }
         else if(maze.isPowerPellet(currentRow,currentColumn)) {
             score += 3;
-            sound.eatPellet.play();
+
             maze.setPellets(maze.getPellets()-1);
-            sound.eatPellet.stop();
+            if(sound.eatPellet.getStatus() == MediaPlayer.Status.PLAYING ){
+                sound.eatPellet.stop();
+                sound.eatPellet.play();
+            }else{
+                sound.eatPellet.play();
+            }
         }
+
 
         //replace the pallet cell with empty space
         Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
