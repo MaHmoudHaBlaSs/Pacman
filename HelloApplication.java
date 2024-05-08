@@ -1,454 +1,409 @@
-package org.example.gamedemo;
-
-
+package com.example.pac_man;
 
 import javafx.animation.*;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
+import javafx.scene.text.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
     int level = 1 ;
-    int startGame = 0;
     boolean death = false;   // to know pacman is still alive or die
     boolean win = false;      // to know if user win
-    Timeline positionChecker;
-    GameSounds sound;
+    private Timeline positionChecker;
+//    private Ghost[] ghosts;
+//    private PacMan pacman;
+//    private MazeView mazeView;
+    private GameSounds sound;
     private static Stage stage;
+    private Scene mainScene;
+    private Scene gameScene;
+    private Scene charactersScene ;
+    private Scene mapsScene ;
+    private Scene infoScene ;
+    private int mapNumber = 1;
+    private Button []mainMenueBtns ;
+    int pacmanGifNum = 1;
     @Override
-    public void start(Stage stage) {
-        // We created this array of 1 element to perform operations on it in Lambda Expression
-        // Because it doesn't allow normal variables expressions.
-        int[] pacmanGifs = {1};
+    public void start(Stage primaryStage) {
+
+        stage = primaryStage;
 
         // create object to control sound effects
         sound = new GameSounds();
         sound.start_sound.play();
 
+        //main menu
+        setMainScene();
+
+        //Characters Menu
+        setCharactersScene();
+
+        //INFO scene
+        setInfoScene();
+
+        //maps menu
+        setMapScene();
+
+        primaryStage.setScene(mainScene);
+        primaryStage.setTitle("Pac-Man Game");
+        primaryStage.getIcons().add(new Image("gameIcon.jpg"));
+        primaryStage.show();
+        primaryStage.setResizable(false);
+    }
+    private void setInfoScene() {
+        Text txt1 = new Text("this mission has done.");
+        txt1.setFont(Font.font(30));
+        txt1.setFill(Color.rgb(125,154,169));
+        txt1.setStyle("-fx-font-family: 'Copperplate Gothic Bold'");
+        txt1.setLayoutX(20);
+        txt1.setLayoutY(35);
+
+        Button backBtn = new Button("Back");
+        backBtn.setBackground(Background.EMPTY);
+        backBtn.setLayoutX(410);
+        backBtn.setLayoutY(600);
+        backBtn.setFont(Font.font(35));
+        backBtn.setTextFill(Color.DARKMAGENTA);
+        backBtn.setOnAction(e-> stage.setScene(mainScene));
+        addButtonEffect(backBtn , Color.DARKMAGENTA , Color.rgb(139,139,139));
 
 
-        /*----------------------------------------Main Menu-----------------------------------------*/
-        Pane mainMenuPane = new Pane();
-        Polygon buttonShape1 = new Polygon(0,0,200,0,230,30,30,30);
-        Polygon buttonShape2 = new Polygon(30,0,230,0,200,30,0,30);
 
-        Image mainImage = new Image("mainMenuPic.jpg");
-        ImageView mainImageView = new ImageView(mainImage);
+        ImageView infoBackground = new ImageView("infoBackground.jpg");
+        infoBackground.setFitWidth(900);
+        infoBackground.setFitHeight(700);
+        Pane pane = new Pane(infoBackground,txt1,backBtn);
+
+        infoScene = new Scene(pane,900,700);
+    }
+ 
+   private void startGameScene() {
+
+        Pane gamePane = new Pane();
+        ImageView background = new ImageView("Background.gif");
+        background.setFitWidth(BOARD_WIDTH);
+        background.setFitHeight(BOARD_HEIGHT);
+
+
+        gameScene = new Scene(gamePane, BOARD_WIDTH, BOARD_HEIGHT);
+        sound.start_sound.stop();
+
+        MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE, mapNumber));
+
+        //create pacman and stick it to the maze view
+        PacMan pacman = new PacMan(1, 1, mazeView, pacmanGifNum);
+
+        //create ghosts and stick them to the maze view
+        Ghost[] ghosts = createGhosts(mazeView, level);
+
+        //add the maze view,background to the game pane , set the scene
+        gamePane.getChildren().addAll(background,mazeView);
+        movePacman(gameScene, pacman);
+
+        stage.setScene(gameScene);
+
+        checkLife( gamePane,pacman , ghosts);
+    }
+    private void checkLife( Pane gamePane, PacMan pacman ,Ghost[] ghosts) {
+        death = false;
+        win = false ;
+
+        positionChecker = new Timeline(new KeyFrame(Duration.millis(50) , e->{
+            for(Ghost ghost : ghosts){
+                // when Pacman Get Caught
+                if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
+                    death=true;
+                    ghost.ghostMovement.stop();
+                }
+            }
+
+            //invoke end scene(death or win).
+            if(death)
+                startEndScene(gamePane,pacman,win );
+            else if(pacman.getMazeView().getMaze().isFinishedMap()){
+                win = true ;
+                startEndScene(gamePane,pacman,win);
+            }
+
+        }));
+        positionChecker.setCycleCount(-1);
+        positionChecker.play();
+    }
+    private void startEndScene(Pane gamePane , PacMan pacman, boolean win ){
+
+        positionChecker.stop();
+
+        //set ending images
+        ImageView[] endingImgs = { new ImageView("GameoverScreen.gif") ,  new ImageView("WinScreen.jpg")};
+        ScaleTransition[] imgsTransition = new ScaleTransition[2];
+
+        for(int i = 0; i < 2; i++){
+            // Setting Image Properties
+            endingImgs[i].setFitHeight(5);
+            endingImgs[i].setFitWidth(5);
+            endingImgs[i].setPreserveRatio(true);
+            endingImgs[i].setLayoutX(380);
+            endingImgs[i].setLayoutY(380);
+            // Setting Image's Transition Effect
+            imgsTransition[i] = new ScaleTransition();
+            imgsTransition[i].setNode(endingImgs[i]);
+            imgsTransition[i].setDuration(Duration.seconds(.5));
+            imgsTransition[i].setToX(153);
+            imgsTransition[i].setToY(152);
+
+            gamePane.getChildren().add(endingImgs[i]);
+            endingImgs[i].setVisible(false);
+        }
+
+        // Game over Prompt Texts.
+        Text[] endGameTexts = new Text[3];
+        endGameTexts[0] = new Text("Press 'Enter' For Main Menu");
+        endGameTexts[0].setLayoutX(240);
+        endGameTexts[0].setLayoutY(630);
+
+        endGameTexts[1] = new Text("Press 'ESC' To Exit");
+        endGameTexts[1].setLayoutX(291);
+        endGameTexts[1].setLayoutY(690);
+
+        endGameTexts[2] = new Text("You Won");
+        endGameTexts[2].setLayoutX(306);
+        endGameTexts[2].setLayoutY(100);
+
+        FadeTransition[] txtsFadeTransition = new FadeTransition[3];
+        StrokeTransition[] txtsStrokeTransition = new StrokeTransition[3];
+
+        for(int i = 0; i< 3; i++){
+
+            // Setting Text Properties
+            endGameTexts[i].setVisible(false);
+            endGameTexts[i].setStyle("-fx-background-color: transparent;");
+            endGameTexts[i].setFont( Font.font("Arial", FontWeight.BOLD, 24));
+            endGameTexts[i].setFill(Color.CORNSILK);
+            endGameTexts[i].setStroke(Color.WHITE);
+            endGameTexts[i].setStrokeWidth(1);
+            // Setting Fading Transition
+            txtsFadeTransition[i] = new FadeTransition(Duration.seconds(1), endGameTexts[i]);
+            txtsFadeTransition[i].setToValue(0.1);
+            txtsFadeTransition[i].setCycleCount(-1);
+            txtsFadeTransition[i].setAutoReverse(true);
+            // Setting Stroke transition
+            txtsStrokeTransition[i] = new StrokeTransition(Duration.seconds(1), endGameTexts[i]);
+            txtsStrokeTransition[i].setFromValue(Color.WHITE);
+            txtsStrokeTransition[i].setToValue(Color.TRANSPARENT);
+            txtsStrokeTransition[i].setAutoReverse(true);
+            txtsStrokeTransition[i].setCycleCount(-1);
+            // Attaching Txt To The Pane
+            gamePane.getChildren().add(endGameTexts[i]);
+        }
+        // Over Edit For "Your Win" Text.
+        endGameTexts[2].setFont( Font.font("Arial", FontWeight.BOLD, 40));
+        endGameTexts[2].setFill(Color.GOLD);
+        txtsStrokeTransition[2].setFromValue(Color.LIGHTGOLDENRODYELLOW);
+
+        if(win){
+            pacman.getCountinuous_Motion().stop();
+            pacman.getChildren().remove(pacman.getGif());
+            gamePane.getChildren().remove(pacman);
+            // Win
+            endingImgs[1].setVisible(true);
+            imgsTransition[1].play();
+            imgsTransition[1].setOnFinished(event1 -> {
+                // Press Enter Text
+                endGameTexts[0].setVisible(true);
+                txtsFadeTransition[0].play();
+                txtsStrokeTransition[0].play();
+                // Press ESC Text
+                endGameTexts[1].setVisible(true);
+                txtsFadeTransition[1].play();
+                txtsStrokeTransition[1].play();
+                // You Won Text
+                endGameTexts[2].setVisible(true);
+                txtsFadeTransition[2].play();
+                txtsStrokeTransition[2].play();
+
+                gameScene.setOnKeyPressed(keyEvent -> {
+                    switch (keyEvent.getCode()) {
+                        case ENTER -> stage.setScene(mainScene);
+                        case ESCAPE -> stage.close();
+                    }
+
+                });
+            });
+
+            positionChecker.stop();
+            sound.winSound.play();
+            win = false;
+        }
+        else{
+            sound.deathSound.play();
+            death = false;
+
+            pacman.getCountinuous_Motion().stop();
+            pacman.getChildren().remove(pacman.getGif());
+            gamePane.getChildren().remove(pacman);
+
+            // Game Over
+            endingImgs[0].setVisible(true);
+            imgsTransition[0].play();
+            imgsTransition[0].setOnFinished(event1 -> {
+                // Press Enter Text
+                endGameTexts[0].setVisible(true);
+                txtsFadeTransition[0].play();
+                txtsStrokeTransition[0].play();
+                // Press ESC Text
+                endGameTexts[1].setVisible(true);
+                txtsFadeTransition[1].play();
+                txtsStrokeTransition[1].play();
+
+                gameScene.setOnKeyPressed(keyEvent -> {
+                    switch (keyEvent.getCode()) {
+                        case ENTER :
+                            stage.setScene(mainScene);
+                            break;
+                        case ESCAPE :
+                            stage.close();
+                            break;
+                    }
+
+                });
+            });
+        }
+
+    }
+    private void setMapScene() {
+
+        //maps images, pane for them
+        ImageView[] maps  = {new ImageView("map1.png"),new ImageView("map2.png"),new ImageView("map3.png")};
+        StackPane mapsImagesPane = new StackPane(maps[0],maps[1],maps[2]);
+        mapsImagesPane.setLayoutX(300);
+        mapsImagesPane.setLayoutY(150);
+        mapsImagesPane.setBorder(Border.stroke(Color.TRANSPARENT));
+        mapsImagesPane.setBackground(Background.fill(Color.TRANSPARENT));
+
+        //maps styling
+        for(int i=0;i<3;i++){
+            maps[i].setFitHeight(280);
+            maps[i].setFitWidth(280);
+            maps[i].setVisible(false);
+        }
+
+
+        //ste buttons and box for them
+        VBox mapsButtonsPane = new VBox(30);
+        mapsButtonsPane.setAlignment(Pos.CENTER);
+        mapsButtonsPane.setLayoutX(50);
+        mapsButtonsPane.setLayoutY(100);
+
+        Button[] mapsButtons = new Button[4];
+        for(int i=0;i<4;i++){
+            mapsButtons[i] = new Button("MAP "+(i+1));
+            mapsButtons[i].setStyle("-fx-background-color: transparent;");
+            mapsButtons[i].setFont(Font.font("Comic Sans MS", 35));
+            mapsButtons[i].setTextFill(Color.rgb(160,160,170));
+
+            //buttons' events
+            if(i==3){
+                mapsButtons[i].setText("BACK");
+                addButtonEffect(mapsButtons[3] , Color.rgb(160,160,170),Color.rgb(229,187,229));
+                mapsButtons[3].setOnAction(e->{ stage.setScene(mainScene);
+                    sound.btnSound.play();
+                    sound.btnSound.stop();
+                });
+            }
+            else {
+                int finalI = i;
+                mapsButtons[i].setOnAction(e->{
+                    mapNumber = finalI +1;
+                    sound.btnSound.play();
+                    sound.btnSound.stop();
+                    stage.setScene(mainScene);
+                });
+                mapsButtons[i].setOnMouseEntered(e->{
+                    mapsButtons[finalI].setTextFill(Color.rgb(229,187,229));
+                    mapsButtons[finalI].setScaleX(1.2);
+                    mapsButtons[finalI].setScaleY(1.2);
+                    maps[finalI].setVisible(true);
+                });
+                mapsButtons[i].setOnMouseExited(e->{
+                    mapsButtons[finalI].setTextFill(Color.rgb(160,160,170));
+                    mapsButtons[finalI].setScaleX(1);
+                    mapsButtons[finalI].setScaleY(1);
+                    maps[finalI].setVisible(false);
+                });
+            }
+
+            mapsButtonsPane.getChildren().add(mapsButtons[i]);
+        }
+
+        //maps scene
+        ImageView mapsBackground = new ImageView("mapsBackground.jpg");
+        mapsBackground.setFitWidth(BOARD_WIDTH/1.15);
+        mapsBackground.setFitHeight(BOARD_HEIGHT/1.25);
+        Pane mapsPane = new Pane(mapsBackground,mapsButtonsPane,mapsImagesPane);
+        mapsScene = new Scene(mapsPane,BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25);
+
+    }
+    public void setMainScene(){
+
+        //set background
+        ImageView mainImageView = new ImageView("mainMenuPic.jpg" );
         mainImageView.setFitWidth(BOARD_WIDTH/1.15);
         mainImageView.setFitHeight(BOARD_HEIGHT/1.25);
 
-        Button []button = new Button[4];
+        //set the buttons
+        Pane mainMenuPane = new Pane();
+        Pane btnsPane = mainMenuBtnsPane();
+        mainMenuPane.getChildren().addAll(mainImageView,btnsPane);
 
-        button[0] = new Button("Play");
-        button[1] = new Button("CHARACTERS");
-        button[2] = new Button("MAPS");
-        button[3] = new Button("INFO");
+        //set the main menu scene
+        mainScene = new Scene(mainMenuPane,BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25);
 
-        for(int i=0 ; i< 4 ; i++){
-
-            button[i].setFont(Font.font("Comic Sans MS",FontWeight.EXTRA_BOLD, FontPosture.ITALIC,20));
-            button[i].setTextFill(Color.DARKTURQUOISE);
-            button[i].setStyle("-fx-background-color:black ; -fx-border-color:SNOW ;-fx-border-width: 0.7;");
-            button[i].setPrefSize(200, 30);
-        }
-
-        button[0].setShape(buttonShape1);
-        button[1].setShape(buttonShape2);
-        button[2].setShape(buttonShape1);
-        button[3].setShape(buttonShape2);
-
-        // Create a VBox
-        VBox buttonsPane = new VBox();
-        buttonsPane.setSpacing(8);
-        buttonsPane.getChildren().addAll(button[0],button[1] , button[2] ,button[3]);
-        buttonsPane.setLayoutX(39);
-        buttonsPane.setLayoutY(352);
-
-        for(Button testBt:button){
-            //MouseEntered event
-            testBt.setOnMouseEntered(e->{
-                testBt.setTextFill(Color.BLACK);
-                testBt.setStyle("-fx-background-color:orange ;");
-                testBt.setPrefSize(240, 40);
-                sound.btnSound.play(); sound.btnSound.stop();
-            });
-            //MouseExited event
-            testBt.setOnMouseExited(e->{
-                testBt.setTextFill(Color.DARKTURQUOISE);
-                testBt.setStyle("-fx-background-color:black ; -fx-border-color:SNOW ;-fx-border-width: 0.5;");
-                testBt.setPrefSize(200, 30);
-            });
-        }
-
-        mainMenuPane.getChildren().addAll(mainImageView,buttonsPane);
-        Scene mainMenuScene = new Scene(mainMenuPane,BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25);
-
-        /*------------------------------Characters Menu-------------------------------*/
-        StackPane charactersPane = new StackPane();
-        VBox charactersBtnsVbox = new VBox();
-        charactersPane.setBackground(new Background(new BackgroundFill(Color.DARKGREY,null,null)));
-
-        ImageView characterBackground = new ImageView(new Image("CharacterBackground.jpg"));
-        characterBackground.setFitWidth(665);
-        charactersPane.getChildren().add(characterBackground);
-
-        // Adjusting the Pacman ImageView
-        ImageView pacmanGif = new ImageView(new Image("PacmanEye.gif"));
-        pacmanGif.setFitWidth(200);
-        pacmanGif.setFitHeight(200);
-        pacmanGif.setTranslateY(20);
-        pacmanGif.setTranslateX(120);
-        // Adjusting the Pacwoman ImageView
-        ImageView pacwomanGif = new ImageView(new Image("pacwoman.gif"));
-        pacwomanGif.setFitWidth(200);
-        pacwomanGif.setFitHeight(200);
-        pacwomanGif.setTranslateY(20);
-        pacwomanGif.setTranslateX(120);
-        // Adjusting the Pacboy ImageView
-        ImageView pacboyGif = new ImageView(new Image("pacboy.gif"));
-        pacboyGif.setFitWidth(200);
-        pacboyGif.setFitHeight(200);
-        pacboyGif.setTranslateY(17);
-        pacboyGif.setTranslateX(110);
-
-        // Setting Characters Buttons
-        Button[] charactersBtns = new Button[5];
-        charactersBtns[0] = new Button("Pacman");
-        charactersBtns[1] = new Button("Pacboy");
-        charactersBtns[2] = new Button("Pacwoman");
-        charactersBtns[3] = new Button("Back");
-        charactersBtns[4] = new Button("Choose!");
-
-        for(Button btn: charactersBtns){
-            btn.setStyle("-fx-background-color: transparent;");
-            btn.setFont(new Font("Comic Sans MS", 30));
-            btn.setTextFill(Color.CYAN);
-            addButtonEffect(btn, Color.CYAN, Color.MAGENTA);
-        }
-
-        for(Button btn: charactersBtns){
-            // Mouse Entered Event
-            btn.setOnMouseEntered(ev -> {
-                sound.btnSound.play(); sound.btnSound.stop();
-                btn.setTextFill(Color.MAGENTA);
-                btn.setScaleX(1.2);
-                btn.setScaleY(1.2);
-            });
-            // Mouse Exited Events
-            btn.setOnMouseExited(ev -> {
-                btn.setTextFill(Color.CYAN);
-                btn.setScaleX(1);
-                btn.setScaleY(1);
-            });
-        }
-
-        // Setting the Back Button
-        charactersBtns[3].setStyle("-fx-background-color: transparent;");
-        charactersBtns[3].setFont(new Font("Comic Sans MS", 30));
-        charactersBtns[3].setTextFill(Color.DARKRED);
-        addButtonEffect(charactersBtns[3], Color.DARKRED, Color.RED);
-        charactersBtns[3].setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-
-        // Setting the Choose Button
-        charactersBtns[4].setTextFill(Color.GREEN);
-        charactersBtns[4].setTranslateY(1);
-        charactersBtns[4].setTranslateX(380);
-        addButtonEffect(charactersBtns[4], Color.GREEN, Color.LIGHTGREEN);
-        charactersBtns[4].setVisible(false);
-        charactersBtns[4].setOnMouseMoved(mouseEvent->{sound.btnSound.play(); sound.btnSound.stop();});
-
-
-        // Adjusting charactersBtnsVbox (VBox)
-        charactersBtnsVbox.setAlignment(Pos.CENTER_LEFT);
-        charactersBtnsVbox.setLayoutX(0);
-        charactersBtnsVbox.setLayoutY(200);
-        charactersBtnsVbox.getChildren().addAll(charactersBtns[0], charactersBtns[2], charactersBtns[1], charactersBtns[3], charactersBtns[4]);
-        charactersBtnsVbox.setSpacing(25);
-        charactersBtnsVbox.setPadding(new Insets(10, 10, 10, 10));
-
-        charactersPane.getChildren().add(charactersBtnsVbox);
-        Scene charactersScene = new Scene(charactersPane, BOARD_WIDTH/1.15, BOARD_HEIGHT/1.25);
-
-        // How we Enter Characters Menu
-        button[1].setOnAction(event ->{
-            stage.setScene(charactersScene);
-        });
-
-        // Handle Menu Buttons Actions
-        // Setting Back Button
-        charactersBtns[3].setOnAction(event -> {
-            stage.setScene(mainMenuScene);
-        });
-        // Setting Pacman Button
-        charactersBtns[0].setOnAction(event -> {
-            charactersPane.getChildren().removeAll(pacmanGif, pacwomanGif, pacboyGif);
-            charactersPane.getChildren().add(pacmanGif);
-            pacmanGifs[0] = 1;
-            charactersBtns[4].setVisible(true);
-        });
-        // Setting Pacboy Button
-        charactersBtns[1].setOnAction(event -> {
-            charactersPane.getChildren().removeAll(pacmanGif, pacwomanGif, pacboyGif);
-            charactersPane.getChildren().add(pacboyGif);
-            pacmanGifs[0] = 2;
-            charactersBtns[4].setVisible(true);
-        });
-        // Setting Pacwoman Button
-        charactersBtns[2].setOnAction(event -> {
-            charactersPane.getChildren().removeAll(pacmanGif, pacwomanGif, pacboyGif);
-            charactersPane.getChildren().add(pacwomanGif);
-            pacmanGifs[0] = 3;
-            charactersBtns[4].setVisible(true);
-        });
-
-        // How we Exit Characters Scene (Choose Button)
-        charactersBtns[4].setOnAction(event -> {
-            stage.setScene(mainMenuScene);
-        });
-        /*---------------------------End Of Characters Menu---------------------------*/
-        /*------------------------------About Menu-------------------------------*/
-
-        /*------------------------------End Of About Menu-------------------------------*/
-        /*------------------------------Start (Game)-------------------------------*/
-        // How we enter the game (Play Button)
-        button[0].setOnAction(event -> {
-            Pane gamePane = new Pane();
-            MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE, 1));
-            Scene gameScene = new Scene(gamePane, BOARD_WIDTH, BOARD_HEIGHT);
-            sound.start_sound.stop();
-
-            // Setting the Background
-            ImageView background = new ImageView(new Image("Background.gif"));
-            background.setFitWidth(BOARD_WIDTH);
-            background.setFitHeight(BOARD_HEIGHT);
-            gamePane.getChildren().add(background);
-
-            // Create Pac-Man, ghosts
-            PacMan pacman = new PacMan(1, 1,mazeView, pacmanGifs[0]);
-            Ghost[] ghosts = createGhosts(mazeView,level);
-            gamePane.getChildren().add(mazeView);
-            movePacman(gameScene, pacman);
-
-            stage.setScene(gameScene);
-
-            // Setting Ending Effects (Win - Lose)
-            ImageView[] endingImgs = new ImageView[2];
-            endingImgs[0] = new ImageView("GameoverScreen.gif");
-            endingImgs[1] = new ImageView("WinScreen.jpg");
-
-            ScaleTransition[] imgsTransition = new ScaleTransition[2];
-
-            for(int i = 0; i < 2; i++){
-                // Setting Image Properties
-                endingImgs[i].setFitHeight(5);
-                endingImgs[i].setFitHeight(5);
-                endingImgs[i].setPreserveRatio(true);
-                endingImgs[i].setLayoutX(380);
-                endingImgs[i].setLayoutY(380);
-                // Setting Image's Transition Effect
-                imgsTransition[i] = new ScaleTransition();
-                imgsTransition[i].setNode(endingImgs[i]);
-                imgsTransition[i].setDuration(Duration.seconds(.5));
-                imgsTransition[i].setToX(153);
-                imgsTransition[i].setToY(152);
-
-                gamePane.getChildren().add(endingImgs[i]);
-                endingImgs[i].setVisible(false);
-            }
-
-            // Game over Prompt Texts.
-            Text[] endGameTexts = new Text[3];
-            endGameTexts[0] = new Text("Press 'Enter' For Main Menu");
-            endGameTexts[0].setLayoutX(240);
-            endGameTexts[0].setLayoutY(630);
-
-            endGameTexts[1] = new Text("Press 'ESC' To Exit");
-            endGameTexts[1].setLayoutX(291);
-            endGameTexts[1].setLayoutY(690);
-
-            endGameTexts[2] = new Text("You Won");
-            endGameTexts[2].setLayoutX(306);
-            endGameTexts[2].setLayoutY(100);
-
-            FadeTransition[] txtsFadeTransition = new FadeTransition[3];
-            StrokeTransition[] txtsStrokeTransition = new StrokeTransition[3];
-
-            for(int i = 0; i< 3; i++){
-
-                // Setting Text Properties
-                endGameTexts[i].setVisible(false);
-                endGameTexts[i].setStyle("-fx-background-color: transparent;");
-                endGameTexts[i].setFont( Font.font("Arial", FontWeight.BOLD, 24));
-                endGameTexts[i].setFill(Color.CORNSILK);
-                endGameTexts[i].setStroke(Color.WHITE);
-                endGameTexts[i].setStrokeWidth(1);
-                // Setting Fading Transition
-                txtsFadeTransition[i] = new FadeTransition(Duration.seconds(1), endGameTexts[i]);
-                txtsFadeTransition[i].setToValue(0.1);
-                txtsFadeTransition[i].setCycleCount(-1);
-                txtsFadeTransition[i].setAutoReverse(true);
-                // Setting Stroke transition
-                txtsStrokeTransition[i] = new StrokeTransition(Duration.seconds(1), endGameTexts[i]);
-                txtsStrokeTransition[i].setFromValue(Color.WHITE);
-                txtsStrokeTransition[i].setToValue(Color.TRANSPARENT);
-                txtsStrokeTransition[i].setAutoReverse(true);
-                txtsStrokeTransition[i].setCycleCount(-1);
-                // Attaching Txt To The Pane
-                gamePane.getChildren().add(endGameTexts[i]);
-            }
-            // Over Edit For "Your Win" Text.
-            endGameTexts[2].setFont( Font.font("Arial", FontWeight.BOLD, 40));
-            endGameTexts[2].setFill(Color.GOLD);
-            txtsStrokeTransition[2].setFromValue(Color.LIGHTGOLDENRODYELLOW);
-
-            positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e->{
-                for(Ghost ghost : ghosts){
-                    // When Pacman Get Caught
-                    if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
-                        death=true;
-
-                        pacman.getCountinuous_Motion().stop();
-                        pacman.getChildren().remove(pacman.getGif());
-                        gamePane.getChildren().remove(pacman);
-                        ghost.animation.stop();
-                        // Game Over
-                        endingImgs[0].setVisible(true);
-                        imgsTransition[0].play();
-                        imgsTransition[0].setOnFinished(event1 -> {
-                            // Press Enter Text
-                            endGameTexts[0].setVisible(true);
-                            txtsFadeTransition[0].play();
-                            txtsStrokeTransition[0].play();
-                            // Press ESC Text
-                            endGameTexts[1].setVisible(true);
-                            txtsFadeTransition[1].play();
-                            txtsStrokeTransition[1].play();
-
-                            gameScene.setOnKeyPressed(keyEvent -> {
-                                switch (keyEvent.getCode()) {
-                                    case ENTER :
-                                        stage.setScene(mainMenuScene);
-                                        break;
-                                    case ESCAPE :
-                                        stage.close();
-                                        break;
-                                }
-
-                            });
-                        });
-                    }
-
-                }
-                // play death sound
-                if(death){
-                    positionChecker.stop();
-                    sound.deathSound.play();
-                    death = false;
-                }else{
-                    sound.deathSound.stop();
-                }
-
-
-                // When Pellets == 0
-                if(mazeView.getMaze().isFinishedMap())
-                {
-                    win = true ;
-                    pacman.getCountinuous_Motion().stop();
-                    pacman.getChildren().remove(pacman.getGif());
-                    gamePane.getChildren().remove(pacman);
-                    // Win
-                    endingImgs[1].setVisible(true);
-                    imgsTransition[1].play();
-                    imgsTransition[1].setOnFinished(event1 -> {
-                        // Press Enter Text
-                        endGameTexts[0].setVisible(true);
-                        txtsFadeTransition[0].play();
-                        txtsStrokeTransition[0].play();
-                        // Press ESC Text
-                        endGameTexts[1].setVisible(true);
-                        txtsFadeTransition[1].play();
-                        txtsStrokeTransition[1].play();
-                        // You Won Text
-                        endGameTexts[2].setVisible(true);
-                        txtsFadeTransition[2].play();
-                        txtsStrokeTransition[2].play();
-
-                        gameScene.setOnKeyPressed(keyEvent -> {
-                            switch (keyEvent.getCode()) {
-                                case ENTER -> stage.setScene(mainMenuScene);
-                                case ESCAPE -> stage.close();
-                            }
-
-                        });
-                    });
-                }
-                //set win sound effects
-                if(win){
-                    positionChecker.stop();
-                    sound.winSound.play();
-                    win = false;
-                }else{
-                    sound.winSound.stop();
-                }
-
-            }));
-
-            positionChecker.setCycleCount(-1);
-            positionChecker.play();
-        });
-
-        /*------------------------------End of Start (Game)-------------------------------*/
-        /*----------------------------------End Of Main Menu----------------------------------------*/
-        stage.setScene(mainMenuScene);
-        stage.setTitle("Pac-Man Game");
-        stage.show();
-        stage.setResizable(false);
     }
-    public void movePacman(Scene scene, PacMan pacman) {
-        scene.setOnKeyPressed(event -> {
+    public void setCharactersScene(){
+
+        //pane for characters' gifs
+        StackPane charactersPane = charactersGifsPane();
+
+        //pane for buttons to choose a character gif
+        VBox charactersBtnsVbox = charactersBtnsPane(charactersPane);
+
+        //set main pane , add buttons' pane and characters' pane to it
+        Pane charactersMenuPane = new Pane();
+        ImageView characterBackground = new ImageView("CharacterBackground.jpg");
+        characterBackground.setFitWidth(BOARD_WIDTH/1.15);
+        characterBackground.setFitHeight(BOARD_HEIGHT/1.25);
+        charactersMenuPane.getChildren().addAll(characterBackground,charactersBtnsVbox ,charactersPane);
+
+        //create the scene and add the main pane to it
+        charactersScene = new Scene(charactersMenuPane, BOARD_WIDTH/1.15, BOARD_HEIGHT/1.25);
+
+    }
+    public void movePacman(Scene gameScene, PacMan pacman) {
+        gameScene.setOnKeyPressed(event -> {
             switch(event.getCode()){
                 case RIGHT :
-                    System.out.println("Right");
                     pacman.setlastPress(0);   //to set last press right
                     break;
                 case DOWN:
-                    System.out.println("Down");
                     pacman.setlastPress(1);   //to set last press down
                     break;
                 case UP:
-                    System.out.println("Up");
                     pacman.setlastPress(2);    //to set last press up
                     break;
                 case LEFT:
-                    System.out.println("Left");
                     pacman.setlastPress(3);       //to set last press left
                     break;
             }
@@ -497,6 +452,8 @@ public class HelloApplication extends Application {
             button.setTextFill(after);
             button.setScaleX(1.2);
             button.setScaleY(1.2);
+            sound.btnSound.play();
+            sound.btnSound.stop();
         });
         button.setOnMouseExited(event -> {
             button.setTextFill(before);
@@ -504,11 +461,133 @@ public class HelloApplication extends Application {
             button.setScaleY(1);
         });
     }
-    public void stopm(boolean death){
-        if(death){
-            sound.winSound.play();
-            death = false;
-            positionChecker.stop();
+    private Pane mainMenuBtnsPane(){
+        Polygon buttonShape1 = new Polygon(0,0,200,0,230,30,30,30);
+        Polygon buttonShape2 = new Polygon(30,0,230,0,200,30,0,30);
+
+        //set the buttons' array, Vbox for them
+        VBox buttonsPane = new VBox(8);
+        buttonsPane.setLayoutX(39);
+        buttonsPane.setLayoutY(352);
+
+        mainMenueBtns = new Button[4];
+        String[] btnsText = {"Play","CHARACTERS","MAPS","INFO"};
+
+        for(int i=0 ; i< 4 ; i++){
+            //styling
+            mainMenueBtns[i] = new Button(btnsText[i]);
+            mainMenueBtns[i].setFont(Font.font("Comic Sans MS",FontWeight.EXTRA_BOLD, FontPosture.ITALIC,20));
+            mainMenueBtns[i].setStyle("-fx-background-color:black ; -fx-border-color:#a0a0aa ;-fx-border-width: 0.7;-fx-text-fill: DARKTURQUOISE");
+            mainMenueBtns[i].setPrefSize(200, 30);
+            mainMenueBtns[i].setShape(i%2 == 0?  buttonShape1 : buttonShape2 );
+
+            buttonsPane.getChildren().add(mainMenueBtns[i]);
+
+            //styling events
+            int finalI = i;
+            mainMenueBtns[i].setOnMouseEntered(e->{
+                mainMenueBtns[finalI].setTextFill(Color.BLACK);
+                mainMenueBtns[finalI].setStyle("-fx-background-color:orange ;");
+                mainMenueBtns[finalI].setPrefSize(240, 40);
+                sound.btnSound.play();
+                sound.btnSound.stop();
+            });
+            mainMenueBtns[i].setOnMouseExited(e->{
+                mainMenueBtns[finalI].setTextFill(Color.DARKTURQUOISE);
+                mainMenueBtns[finalI].setStyle("-fx-background-color:black ; -fx-border-color:SNOW ;-fx-border-width: 0.5;");
+                mainMenueBtns[finalI].setPrefSize(200, 30);
+            });
+
         }
+
+        // How we enter the game (Play Button)
+        mainMenueBtns[0].setOnAction(event -> startGameScene());
+        mainMenueBtns[1].setOnAction(e-> stage.setScene(charactersScene) );
+        mainMenueBtns[2].setOnAction(e-> stage.setScene(mapsScene) );
+        mainMenueBtns[3].setOnAction(e-> stage.setScene(infoScene) );
+        return buttonsPane;
+    }
+    private VBox charactersBtnsPane(StackPane charactersPane){
+        VBox charactersBtnsVbox = new VBox(25);
+        charactersBtnsVbox.setAlignment(Pos.CENTER_LEFT);
+        charactersBtnsVbox.setLayoutX(0);
+        charactersBtnsVbox.setLayoutY(200);
+        charactersBtnsVbox.setPadding(new Insets(10));
+
+
+        // Setting Characters Buttons
+        Button[] charactersBtns = new Button[4];
+        String[] btnsText = {"Pacman","Pacboy","Pacwoman","Back"};
+        for(int i=0;i<3; i++){
+            //set button style
+            charactersBtns[i] = new Button(btnsText[i]);
+            charactersBtns[i].setStyle("-fx-background-color: transparent;");
+            charactersBtns[i].setFont(new Font("Comic Sans MS", 30));
+            charactersBtns[i].setTextFill(Color.CYAN);
+            //addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
+
+            //set the button event
+            int finalI = i;
+            charactersBtns[i].setOnAction(event -> {
+                pacmanGifNum = finalI+1;
+                stage.setScene(mainScene);
+            });
+            charactersBtns[i].setOnMouseEntered(event -> {
+                charactersPane.getChildren().get(finalI).setVisible(true);
+                charactersBtns[finalI].setTextFill(Color.MAGENTA);
+                charactersBtns[finalI].setScaleX(1.2);
+                charactersBtns[finalI].setScaleY(1.2);
+                sound.btnSound.play();
+                sound.btnSound.stop();
+            });
+            charactersBtns[i].setOnMouseExited(event -> {
+                charactersPane.getChildren().get(finalI).setVisible(false);
+                charactersBtns[finalI].setTextFill(Color.CYAN);
+                charactersBtns[finalI].setScaleX(1);
+                charactersBtns[finalI].setScaleY(1);
+            });
+
+            //add the button to the vbox
+            charactersBtnsVbox.getChildren().add(charactersBtns[i]);
+        }
+
+        // Setting the Back Button
+        charactersBtns[3] = new Button(btnsText[3]);
+        charactersBtns[3].setFont(Font.font("Comic Sans MS", 30));
+        charactersBtns[3].setBackground(Background.fill(Color.TRANSPARENT));
+        charactersBtns[3].setTextFill(Color.DARKRED);
+        addButtonEffect(charactersBtns[3], Color.DARKRED, Color.RED);
+        charactersBtns[3].setOnAction(event -> stage.setScene(mainScene) );
+        charactersBtnsVbox.getChildren().add(charactersBtns[3]);
+        return charactersBtnsVbox;
+    }
+    private StackPane charactersGifsPane(){
+        //pane for characters' gifs
+        StackPane charactersPane = new StackPane();
+        charactersPane.setBackground(Background.fill(Color.TRANSPARENT));
+        charactersPane.setLayoutX(120);
+        charactersPane.setLayoutY(120);
+
+        // Adjusting characters pane (VBox)
+        VBox charactersBtnsVbox = new VBox(25);
+        charactersBtnsVbox.setAlignment(Pos.CENTER_LEFT);
+        charactersBtnsVbox.setLayoutX(10);
+        charactersBtnsVbox.setLayoutY(150);
+        charactersBtnsVbox.setPadding(new Insets(10));
+
+        //set the gif for every character
+        String[] gifsUrls = { "PacmanEye.gif","pacwoman.gif","pacboy.gif"};
+        ImageView[] charactersGifs = new ImageView[3];
+        for(int i=0;i<3;i++){
+            charactersGifs[i] = new ImageView(gifsUrls[i]);
+            charactersGifs[i].setFitWidth(150);
+            charactersGifs[i].setFitHeight(150);
+            charactersGifs[i].setTranslateY(160);
+            charactersGifs[i].setTranslateX(130);
+            charactersGifs[i].setVisible(false);
+            charactersPane.getChildren().add(charactersGifs[i]);
+        }
+
+        return charactersPane;
     }
 }
