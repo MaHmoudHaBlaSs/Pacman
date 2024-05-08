@@ -1,5 +1,6 @@
 package com.example.pac_man;
 
+
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -9,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.*;
@@ -23,7 +25,7 @@ public class HelloApplication extends Application {
     boolean death = false;   // to know pacman is still alive or die
     boolean win = false;      // to know if user win
     private Timeline positionChecker;
-//    private Ghost[] ghosts;
+    //    private Ghost[] ghosts;
 //    private PacMan pacman;
 //    private MazeView mazeView;
     private GameSounds sound;
@@ -82,15 +84,15 @@ public class HelloApplication extends Application {
 
 
 
-        ImageView infoBackground = new ImageView("infoBackground.jpg");
+        ImageView infoBackground = new ImageView("infoBackgroundjpg.jpg");
         infoBackground.setFitWidth(900);
         infoBackground.setFitHeight(700);
         Pane pane = new Pane(infoBackground,txt1,backBtn);
 
         infoScene = new Scene(pane,900,700);
     }
- 
-   private void startGameScene() {
+
+    private void startGameScene() {
 
         Pane gamePane = new Pane();
         ImageView background = new ImageView("Background.gif");
@@ -126,7 +128,7 @@ public class HelloApplication extends Application {
                 // when Pacman Get Caught
                 if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
                     death=true;
-                    ghost.ghostMovement.stop();
+                    ghost.animation.stop();
                 }
             }
 
@@ -319,22 +321,36 @@ public class HelloApplication extends Application {
                 mapsButtons[i].setText("BACK");
                 addButtonEffect(mapsButtons[3] , Color.rgb(160,160,170),Color.rgb(229,187,229));
                 mapsButtons[3].setOnAction(e->{ stage.setScene(mainScene);
-                    sound.btnSound.play();
-                    sound.btnSound.stop();
+                    if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
+                        sound.btnSound.stop();
+                        sound.btnSound.play();
+                    }else{
+                        sound.btnSound.play();
+                    }
                 });
             }
             else {
                 int finalI = i;
                 mapsButtons[i].setOnAction(e->{
                     mapNumber = finalI +1;
-                    sound.btnSound.play();
-                    sound.btnSound.stop();
+                    if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
+                        sound.btnSound.stop();
+                        sound.btnSound.play();
+                    }else{
+                        sound.btnSound.play();
+                    }
                     stage.setScene(mainScene);
                 });
                 mapsButtons[i].setOnMouseEntered(e->{
                     mapsButtons[finalI].setTextFill(Color.rgb(229,187,229));
                     mapsButtons[finalI].setScaleX(1.2);
                     mapsButtons[finalI].setScaleY(1.2);
+                    if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
+                        sound.btnSound.stop();
+                        sound.btnSound.play();
+                    }else{
+                        sound.btnSound.play();
+                    }
                     maps[finalI].setVisible(true);
                 });
                 mapsButtons[i].setOnMouseExited(e->{
@@ -452,8 +468,12 @@ public class HelloApplication extends Application {
             button.setTextFill(after);
             button.setScaleX(1.2);
             button.setScaleY(1.2);
-            sound.btnSound.play();
-            sound.btnSound.stop();
+            if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
+                sound.btnSound.stop();
+                sound.btnSound.play();
+            }else{
+                sound.btnSound.play();
+            }
         });
         button.setOnMouseExited(event -> {
             button.setTextFill(before);
@@ -489,8 +509,12 @@ public class HelloApplication extends Application {
                 mainMenueBtns[finalI].setTextFill(Color.BLACK);
                 mainMenueBtns[finalI].setStyle("-fx-background-color:orange ;");
                 mainMenueBtns[finalI].setPrefSize(240, 40);
-                sound.btnSound.play();
-                sound.btnSound.stop();
+                if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
+                    sound.btnSound.stop();
+                    sound.btnSound.play();
+                }else{
+                    sound.btnSound.play();
+                }
             });
             mainMenueBtns[i].setOnMouseExited(e->{
                 mainMenueBtns[finalI].setTextFill(Color.DARKTURQUOISE);
@@ -524,7 +548,7 @@ public class HelloApplication extends Application {
             charactersBtns[i].setStyle("-fx-background-color: transparent;");
             charactersBtns[i].setFont(new Font("Comic Sans MS", 30));
             charactersBtns[i].setTextFill(Color.CYAN);
-            //addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
+            addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
 
             //set the button event
             int finalI = i;
@@ -537,8 +561,12 @@ public class HelloApplication extends Application {
                 charactersBtns[finalI].setTextFill(Color.MAGENTA);
                 charactersBtns[finalI].setScaleX(1.2);
                 charactersBtns[finalI].setScaleY(1.2);
-                sound.btnSound.play();
-                sound.btnSound.stop();
+                if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
+                    sound.btnSound.stop();
+                    sound.btnSound.play();
+                }else{
+                    sound.btnSound.play();
+                }
             });
             charactersBtns[i].setOnMouseExited(event -> {
                 charactersPane.getChildren().get(finalI).setVisible(false);
@@ -558,6 +586,14 @@ public class HelloApplication extends Application {
         charactersBtns[3].setTextFill(Color.DARKRED);
         addButtonEffect(charactersBtns[3], Color.DARKRED, Color.RED);
         charactersBtns[3].setOnAction(event -> stage.setScene(mainScene) );
+        charactersBtns[3].setOnMouseEntered(e->{
+            if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
+                sound.btnSound.stop();
+                sound.btnSound.play();
+            }else{
+                sound.btnSound.play();
+            }
+        });
         charactersBtnsVbox.getChildren().add(charactersBtns[3]);
         return charactersBtnsVbox;
     }
