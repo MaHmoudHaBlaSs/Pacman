@@ -1,6 +1,5 @@
 package com.example.pac_man;
 
-
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -25,9 +24,9 @@ public class HelloApplication extends Application {
     boolean death = false;   // to know pacman is still alive or die
     boolean win = false;      // to know if user win
     private Timeline positionChecker;
-    //    private Ghost[] ghosts;
-//    private PacMan pacman;
-//    private MazeView mazeView;
+    private Ghost[] ghosts;
+    private PacMan pacman;
+    private MazeView mazeView;
     private GameSounds sound;
     private static Stage stage;
     private Scene mainScene;
@@ -65,91 +64,55 @@ public class HelloApplication extends Application {
         primaryStage.show();
         primaryStage.setResizable(false);
     }
-    private void setInfoScene() {
-        Text txt1 = new Text("this mission has done.");
-        txt1.setFont(Font.font(30));
-        txt1.setFill(Color.rgb(125,154,169));
-        txt1.setStyle("-fx-font-family: 'Copperplate Gothic Bold'");
-        txt1.setLayoutX(20);
-        txt1.setLayoutY(35);
-
-        Button backBtn = new Button("Back");
-        backBtn.setBackground(Background.EMPTY);
-        backBtn.setLayoutX(410);
-        backBtn.setLayoutY(600);
-        backBtn.setFont(Font.font(35));
-        backBtn.setTextFill(Color.DARKMAGENTA);
-        backBtn.setOnAction(e-> stage.setScene(mainScene));
-        addButtonEffect(backBtn , Color.DARKMAGENTA , Color.rgb(139,139,139));
-
-
-
-        ImageView infoBackground = new ImageView("infoBackgroundjpg.jpg");
-        infoBackground.setFitWidth(900);
-        infoBackground.setFitHeight(700);
-        Pane pane = new Pane(infoBackground,txt1,backBtn);
-
-        infoScene = new Scene(pane,900,700);
-    }
-
     private void startGameScene() {
-
-        Pane gamePane = new Pane();
-        ImageView background = new ImageView("Background.gif");
-        background.setFitWidth(BOARD_WIDTH);
-        background.setFitHeight(BOARD_HEIGHT);
-
-
-        gameScene = new Scene(gamePane, BOARD_WIDTH, BOARD_HEIGHT);
-        sound.start_sound.stop();
-
-        MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH,BOARD_HEIGHT,CELL_SIZE, mapNumber));
-
-        //create pacman and stick it to the maze view
-        PacMan pacman = new PacMan(1, 1, mazeView, pacmanGifNum);
-
-        //create ghosts and stick them to the maze view
-        Ghost[] ghosts = createGhosts(mazeView, level);
-
-        //add the maze view,background to the game pane , set the scene
-        gamePane.getChildren().addAll(background,mazeView);
-        movePacman(gameScene, pacman);
+        Pane gamePane = createGamePane();
+        ImageView background = createBackground("Background.gif" , BOARD_WIDTH,BOARD_HEIGHT);
+        gamePane.getChildren().addAll(background, mazeView);
 
         stage.setScene(gameScene);
 
-        checkLife( gamePane,pacman , ghosts);
-    }
-    private void checkLife( Pane gamePane, PacMan pacman ,Ghost[] ghosts) {
-        death = false;
-        win = false ;
+        movePacman(gameScene, pacman);
 
-        positionChecker = new Timeline(new KeyFrame(Duration.millis(50) , e->{
-            for(Ghost ghost : ghosts){
-                // when Pacman Get Caught
-                if(ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
-                    death=true;
-                    ghost.animation.stop();
+        checkLife(gamePane, pacman, ghosts);
+    }
+    private Pane createGamePane() {
+        Pane gamePane = new Pane();
+        gameScene = new Scene(gamePane, BOARD_WIDTH, BOARD_HEIGHT);
+        sound.start_sound.stop();
+        mazeView = new MazeView(new Maze(BOARD_WIDTH, BOARD_HEIGHT, CELL_SIZE, mapNumber));
+        pacman = new PacMan(1, 1, mazeView, pacmanGifNum);
+        ghosts = createGhosts(mazeView, level);
+        return gamePane;
+    }
+    private ImageView createBackground(String url , double width, double height ) {
+        ImageView background = new ImageView(url);
+        background.setFitWidth(width);
+        background.setFitHeight(height);
+        return background;
+    }
+    private void checkLife(Pane gamePane, PacMan pacman, Ghost[] ghosts) {
+        death = false;
+        win = false;
+        sound.deathSound.stop();
+        sound.winSound.stop();
+        positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e -> {
+            for (Ghost ghost : ghosts) {
+                if (ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
+                    death = true;
+                    ghost.ghostMovement.stop();
                 }
             }
-
-            //invoke end scene(death or win).
-            if(death)
-                startEndScene(gamePane,pacman,win );
-            else if(pacman.getMazeView().getMaze().isFinishedMap()){
-                win = true ;
-                startEndScene(gamePane,pacman,win);
+            if (death || pacman.getMazeView().getMaze().isFinishedMap()) {
+                startEndScene(gamePane, death);
             }
-
         }));
         positionChecker.setCycleCount(-1);
         positionChecker.play();
     }
-    private void startEndScene(Pane gamePane , PacMan pacman, boolean win ){
-
+    private void startEndScene(Pane gamePane, boolean isDeath) {
         positionChecker.stop();
 
-        //set ending images
-        ImageView[] endingImgs = { new ImageView("GameoverScreen.gif") ,  new ImageView("WinScreen.jpg")};
+        ImageView[] endingImgs = {new ImageView("GameoverScreen.gif"), new ImageView("WinScreen.jpg")};
         ScaleTransition[] imgsTransition = new ScaleTransition[2];
 
         for(int i = 0; i < 2; i++){
@@ -170,7 +133,86 @@ public class HelloApplication extends Application {
             endingImgs[i].setVisible(false);
         }
 
-        // Game over Prompt Texts.
+        FadeTransition[] txtsFadeTransition  = new FadeTransition[3];
+        StrokeTransition[] txtsStrokeTransition = new StrokeTransition[3];
+        Text[] endGameTexts = initializeEndGameTexts(gamePane,txtsStrokeTransition,txtsFadeTransition);
+
+        if (isDeath) {
+            handleGameOver(gamePane, endingImgs, endGameTexts, txtsFadeTransition,txtsStrokeTransition, imgsTransition);
+        } else {
+            handleGameWin(gamePane, endingImgs, endGameTexts, txtsFadeTransition,txtsStrokeTransition, imgsTransition);
+        }
+    }
+    private void handleGameWin(Pane gamePane, ImageView[] endingImgs, Text[] endGameTexts, FadeTransition[] txtsFadeTransition,
+                               StrokeTransition[] txtsStrokeTransition, ScaleTransition[] imgsTransition ) {
+        pacman.getCountinuous_Motion().stop();
+        pacman.getChildren().remove(pacman.getGif());
+        gamePane.getChildren().remove(pacman);
+        // Win
+        endingImgs[1].setVisible(true);
+        imgsTransition[1].play();
+        imgsTransition[1].setOnFinished(event1 -> {
+            // Press Enter Text
+            endGameTexts[0].setVisible(true);
+            txtsFadeTransition[0].play();
+            txtsStrokeTransition[0].play();
+            // Press ESC Text
+            endGameTexts[1].setVisible(true);
+            txtsFadeTransition[1].play();
+            txtsStrokeTransition[1].play();
+            // You Won Text
+            endGameTexts[2].setVisible(true);
+            txtsFadeTransition[2].play();
+            txtsStrokeTransition[2].play();
+
+            gameScene.setOnKeyPressed(keyEvent -> {
+                switch (keyEvent.getCode()) {
+                    case ENTER -> stage.setScene(mainScene);
+                    case ESCAPE -> stage.close();
+                }
+
+            });
+        });
+        positionChecker.stop();
+        sound.winSound.play();
+        win = false;
+    }
+    private void handleGameOver(Pane gamePane, ImageView[] endingImgs, Text[] endGameTexts, FadeTransition[] txtsFadeTransition,
+                               StrokeTransition[] txtsStrokeTransition, ScaleTransition[] imgsTransition ) {
+        sound.deathSound.play();
+        death = false;
+
+        pacman.getCountinuous_Motion().stop();
+        pacman.getChildren().remove(pacman.getGif());
+        gamePane.getChildren().remove(pacman);
+
+        // Game Over
+        endingImgs[0].setVisible(true);
+        imgsTransition[0].play();
+        imgsTransition[0].setOnFinished(event1 -> {
+            // Press Enter Text
+            endGameTexts[0].setVisible(true);
+            txtsFadeTransition[0].play();
+            txtsStrokeTransition[0].play();
+            // Press ESC Text
+            endGameTexts[1].setVisible(true);
+            txtsFadeTransition[1].play();
+            txtsStrokeTransition[1].play();
+
+            gameScene.setOnKeyPressed(keyEvent -> {
+                switch (keyEvent.getCode()) {
+                    case ENTER :
+                        stage.setScene(mainScene);
+                        break;
+                    case ESCAPE :
+                        stage.close();
+                        break;
+                }
+
+            });
+        });
+    }
+    private Text[] initializeEndGameTexts(Pane gamePane,StrokeTransition[] txtsStrokeTransition,  FadeTransition[] txtsFadeTransition ) {
         Text[] endGameTexts = new Text[3];
         endGameTexts[0] = new Text("Press 'Enter' For Main Menu");
         endGameTexts[0].setLayoutX(240);
@@ -183,9 +225,6 @@ public class HelloApplication extends Application {
         endGameTexts[2] = new Text("You Won");
         endGameTexts[2].setLayoutX(306);
         endGameTexts[2].setLayoutY(100);
-
-        FadeTransition[] txtsFadeTransition = new FadeTransition[3];
-        StrokeTransition[] txtsStrokeTransition = new StrokeTransition[3];
 
         for(int i = 0; i< 3; i++){
 
@@ -214,76 +253,7 @@ public class HelloApplication extends Application {
         endGameTexts[2].setFont( Font.font("Arial", FontWeight.BOLD, 40));
         endGameTexts[2].setFill(Color.GOLD);
         txtsStrokeTransition[2].setFromValue(Color.LIGHTGOLDENRODYELLOW);
-
-        if(win){
-            pacman.getCountinuous_Motion().stop();
-            pacman.getChildren().remove(pacman.getGif());
-            gamePane.getChildren().remove(pacman);
-            // Win
-            endingImgs[1].setVisible(true);
-            imgsTransition[1].play();
-            imgsTransition[1].setOnFinished(event1 -> {
-                // Press Enter Text
-                endGameTexts[0].setVisible(true);
-                txtsFadeTransition[0].play();
-                txtsStrokeTransition[0].play();
-                // Press ESC Text
-                endGameTexts[1].setVisible(true);
-                txtsFadeTransition[1].play();
-                txtsStrokeTransition[1].play();
-                // You Won Text
-                endGameTexts[2].setVisible(true);
-                txtsFadeTransition[2].play();
-                txtsStrokeTransition[2].play();
-
-                gameScene.setOnKeyPressed(keyEvent -> {
-                    switch (keyEvent.getCode()) {
-                        case ENTER -> stage.setScene(mainScene);
-                        case ESCAPE -> stage.close();
-                    }
-
-                });
-            });
-
-            positionChecker.stop();
-            sound.winSound.play();
-            win = false;
-        }
-        else{
-            sound.deathSound.play();
-            death = false;
-
-            pacman.getCountinuous_Motion().stop();
-            pacman.getChildren().remove(pacman.getGif());
-            gamePane.getChildren().remove(pacman);
-
-            // Game Over
-            endingImgs[0].setVisible(true);
-            imgsTransition[0].play();
-            imgsTransition[0].setOnFinished(event1 -> {
-                // Press Enter Text
-                endGameTexts[0].setVisible(true);
-                txtsFadeTransition[0].play();
-                txtsStrokeTransition[0].play();
-                // Press ESC Text
-                endGameTexts[1].setVisible(true);
-                txtsFadeTransition[1].play();
-                txtsStrokeTransition[1].play();
-
-                gameScene.setOnKeyPressed(keyEvent -> {
-                    switch (keyEvent.getCode()) {
-                        case ENTER :
-                            stage.setScene(mainScene);
-                            break;
-                        case ESCAPE :
-                            stage.close();
-                            break;
-                    }
-
-                });
-            });
-        }
-
+        return endGameTexts;
     }
     private void setMapScene() {
 
@@ -303,7 +273,7 @@ public class HelloApplication extends Application {
         }
 
 
-        //ste buttons and box for them
+        //set buttons and box for them
         VBox mapsButtonsPane = new VBox(30);
         mapsButtonsPane.setAlignment(Pos.CENTER);
         mapsButtonsPane.setLayoutX(50);
@@ -345,13 +315,14 @@ public class HelloApplication extends Application {
                     mapsButtons[finalI].setTextFill(Color.rgb(229,187,229));
                     mapsButtons[finalI].setScaleX(1.2);
                     mapsButtons[finalI].setScaleY(1.2);
+                    maps[finalI].setVisible(true);
                     if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
                         sound.btnSound.stop();
                         sound.btnSound.play();
                     }else{
                         sound.btnSound.play();
                     }
-                    maps[finalI].setVisible(true);
+
                 });
                 mapsButtons[i].setOnMouseExited(e->{
                     mapsButtons[finalI].setTextFill(Color.rgb(160,160,170));
@@ -365,19 +336,17 @@ public class HelloApplication extends Application {
         }
 
         //maps scene
-        ImageView mapsBackground = new ImageView("mapsBackground.jpg");
-        mapsBackground.setFitWidth(BOARD_WIDTH/1.15);
-        mapsBackground.setFitHeight(BOARD_HEIGHT/1.25);
+        ImageView mapsBackground = createBackground("mapsBackground.jpg" ,BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25 );
         Pane mapsPane = new Pane(mapsBackground,mapsButtonsPane,mapsImagesPane);
         mapsScene = new Scene(mapsPane,BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25);
+
+
 
     }
     public void setMainScene(){
 
         //set background
-        ImageView mainImageView = new ImageView("mainMenuPic.jpg" );
-        mainImageView.setFitWidth(BOARD_WIDTH/1.15);
-        mainImageView.setFitHeight(BOARD_HEIGHT/1.25);
+        ImageView mainImageView = createBackground("mainMenuPic.jpg",BOARD_WIDTH/1.15 ,BOARD_HEIGHT/1.25);
 
         //set the buttons
         Pane mainMenuPane = new Pane();
@@ -398,14 +367,36 @@ public class HelloApplication extends Application {
 
         //set main pane , add buttons' pane and characters' pane to it
         Pane charactersMenuPane = new Pane();
-        ImageView characterBackground = new ImageView("CharacterBackground.jpg");
-        characterBackground.setFitWidth(BOARD_WIDTH/1.15);
-        characterBackground.setFitHeight(BOARD_HEIGHT/1.25);
+        ImageView characterBackground = createBackground("CharacterBackground.jpg",BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25);
         charactersMenuPane.getChildren().addAll(characterBackground,charactersBtnsVbox ,charactersPane);
 
         //create the scene and add the main pane to it
         charactersScene = new Scene(charactersMenuPane, BOARD_WIDTH/1.15, BOARD_HEIGHT/1.25);
 
+    }
+    private void setInfoScene( ) {
+        Text txt1 = new Text("this mission has done.");
+        txt1.setFont(Font.font(30));
+        txt1.setFill(Color.rgb(125,154,169));
+        txt1.setStyle("-fx-font-family: 'Copperplate Gothic Bold'");
+        txt1.setLayoutX(20);
+        txt1.setLayoutY(35);
+
+        Button backBtn = new Button("Back");
+        backBtn.setBackground(Background.EMPTY);
+        backBtn.setLayoutX(410);
+        backBtn.setLayoutY(600);
+        backBtn.setFont(Font.font(35));
+        backBtn.setTextFill(Color.DARKMAGENTA);
+        backBtn.setOnAction(e-> stage.setScene(mainScene));
+        addButtonEffect(backBtn , Color.DARKMAGENTA , Color.rgb(139,139,139));
+
+
+
+        ImageView infoBackground = createBackground("infoBackground.jpg" ,1000 ,700);
+        Pane pane = new Pane(infoBackground,txt1,backBtn);
+
+        infoScene = new Scene(pane,1000,700);
     }
     public void movePacman(Scene gameScene, PacMan pacman) {
         gameScene.setOnKeyPressed(event -> {
@@ -548,7 +539,6 @@ public class HelloApplication extends Application {
             charactersBtns[i].setStyle("-fx-background-color: transparent;");
             charactersBtns[i].setFont(new Font("Comic Sans MS", 30));
             charactersBtns[i].setTextFill(Color.CYAN);
-            addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
 
             //set the button event
             int finalI = i;
@@ -586,14 +576,6 @@ public class HelloApplication extends Application {
         charactersBtns[3].setTextFill(Color.DARKRED);
         addButtonEffect(charactersBtns[3], Color.DARKRED, Color.RED);
         charactersBtns[3].setOnAction(event -> stage.setScene(mainScene) );
-        charactersBtns[3].setOnMouseEntered(e->{
-            if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
-                sound.btnSound.stop();
-                sound.btnSound.play();
-            }else{
-                sound.btnSound.play();
-            }
-        });
         charactersBtnsVbox.getChildren().add(charactersBtns[3]);
         return charactersBtnsVbox;
     }
