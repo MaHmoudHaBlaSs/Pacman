@@ -1,4 +1,4 @@
-package org.example.gamedemo;
+package com.example.pac_man;
 
 
 import javafx.animation.Animation;
@@ -183,23 +183,19 @@ public class Ghost extends Character {
         return walls == 3;
     }
     public void moveRight(){
-        currentColumn += 1;
-        setPosition();
+        setPosition(currentRow,currentColumn+1);
         direction = Direction.RIGHT;
     }
     public void moveLeft(){
-        currentColumn -= 1;
-        setPosition();
+        setPosition(currentRow,currentColumn-1);
         direction = Direction.LEFT;
     }
     public void moveUp(){
-        currentRow -= 1;
-        setPosition();
+        setPosition(currentRow-1,currentColumn);
         direction = Direction.UP;
     }
     public void moveDown(){
-        currentRow += 1;
-        setPosition();
+        setPosition(currentRow+1,currentColumn);
         direction = Direction.DOWN;
     }
 
@@ -218,16 +214,14 @@ public class Ghost extends Character {
         }
 
         //return counter to 0
-        counter=0;
+        counter=1;
     }
     private void moveDirectedGhost(){
-        if(counter%9 ==0 )
+        if(counter%5 ==0 )
             setPath();
 
         if (counter<steps.length){
-            currentRow = steps[counter][0];
-            currentColumn = steps[counter][1];
-            setPosition();
+            setPosition(steps[counter][0],steps[counter][1]);
         }
         counter++;
     }
