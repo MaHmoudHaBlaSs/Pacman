@@ -1,6 +1,10 @@
-package org.example.gamedemo;
+package com.example.pac_man;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 
 public class Character extends Pane {
     protected static final int CELL_SIZE = 40;
@@ -8,7 +12,14 @@ public class Character extends Pane {
     protected int currentRow = 0;
     protected int currentColumn = 0;
     private boolean reflected = false;
+    Timeline mover ;
+    double dx;
+    double dy;
 
+    public Character(){
+        mover =  new Timeline(new KeyFrame(Duration.millis(10), e-> move(dx,dy)));
+        mover.setCycleCount(CELL_SIZE/2);
+    }
     public int getCurrentColumn() {
         return currentColumn;
     }
@@ -17,11 +28,26 @@ public class Character extends Pane {
         return currentRow;
     }
 
+    protected void setPosition(int row,int col){
 
+        dx = col-currentColumn ;
+        dy = row -currentRow ;
+
+        mover.play();
+
+        currentColumn = col;
+        currentRow = row;
+
+    }
+    private void move(double dx , double dy){
+        gif.setY(gif.getY() + dy * 2);
+        gif.setX(gif.getX() + dx * 2);
+    }
     protected void setPosition(){
         gif.setX(currentColumn*CELL_SIZE -5);
         gif.setY(currentRow*CELL_SIZE);
     }
+
     public void setGif(ImageView gif) {
         this.gif = gif;
     }
