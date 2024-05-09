@@ -12,13 +12,20 @@ public class Character extends Pane {
     protected int currentRow = 0;
     protected int currentColumn = 0;
     private boolean reflected = false;
-    Timeline mover ;
-    double dx;
-    double dy;
+    private Timeline mover ;
+    private double dx;
+    private double dy;
+    private Timeline setPositionTm;
 
     public Character(){
         mover =  new Timeline(new KeyFrame(Duration.millis(10), e-> move(dx,dy)));
         mover.setCycleCount(CELL_SIZE/2);
+
+        setPositionTm = new Timeline(new KeyFrame(Duration.millis(250),e->{
+            gif.setX(currentColumn*CELL_SIZE -5);
+            gif.setY(currentRow*CELL_SIZE);}
+        ));
+        setPositionTm.setCycleCount(1);
     }
     public int getCurrentColumn() {
         return currentColumn;
@@ -33,10 +40,11 @@ public class Character extends Pane {
         dx = col-currentColumn ;
         dy = row -currentRow ;
 
-        mover.play();
-
         currentColumn = col;
         currentRow = row;
+
+        mover.play();
+
 
     }
     private void move(double dx , double dy){
@@ -44,8 +52,7 @@ public class Character extends Pane {
         gif.setX(gif.getX() + dx * 2);
     }
     protected void setPosition(){
-        gif.setX(currentColumn*CELL_SIZE -5);
-        gif.setY(currentRow*CELL_SIZE);
+        setPositionTm.play();
     }
 
     public void setGif(ImageView gif) {
