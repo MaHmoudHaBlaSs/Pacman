@@ -21,7 +21,7 @@ public class Character extends Pane {
         mover =  new Timeline(new KeyFrame(Duration.millis(10), e-> move(dx,dy)));
         mover.setCycleCount(CELL_SIZE/2);
 
-        setPositionTm = new Timeline(new KeyFrame(Duration.millis(250),e->{
+        setPositionTm = new Timeline(new KeyFrame(Duration.millis(190),e->{
             gif.setX(currentColumn*CELL_SIZE -5);
             gif.setY(currentRow*CELL_SIZE);}
         ));
