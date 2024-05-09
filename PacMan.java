@@ -1,4 +1,4 @@
-package com.example.pac_man;
+package org.example.gamedemo;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -83,8 +83,8 @@ public class PacMan extends Character {
     }
     public void moveRight(){
         if(!maze.isWall(currentRow,currentColumn+1)) {
-            setPosition(currentRow,currentColumn+1);
-            updateScore();
+            setPosition(currentRow,currentColumn+1); // Internal Change in I and J
+            updateScore(); // Deals With New I and J
         }
     }
     public void moveLeft(){
@@ -105,37 +105,77 @@ public class PacMan extends Character {
             updateScore();
         }
     }
+//    private void updateScore(){
+//        if(maze.isPellet(currentRow,currentColumn)) {
+//            score += 10;
+//
+//            maze.setPellets(maze.getPellets()-1);
+//
+//            if(sound.eatPellet.getStatus() == MediaPlayer.Status.PLAYING ){
+//                sound.eatPellet.stop();
+//                sound.eatPellet.play();
+//            }else{
+//                sound.eatPellet.play();
+//            }
+//        }
+//        else if(maze.isPowerPellet(currentRow,currentColumn)) {
+//            score += 30;
+//
+//            maze.setPellets(maze.getPellets()-1);
+//            if(sound.eatPellet.getStatus() == MediaPlayer.Status.PLAYING ){
+//                sound.eatPellet.stop();
+//                sound.eatPellet.play();
+//            }else{
+//                sound.eatPellet.play();
+//            }
+//        }
+//
+//
+//        //replace the pallet cell with empty space
+//        Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
+//        emptySpace.setFill(Color.TRANSPARENT);
+//        maze.setEmptySpace(currentRow,currentColumn);
+//        mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn );
+//        mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
+//    }
     private void updateScore(){
         if(maze.isPellet(currentRow,currentColumn)) {
-            score += 1;
-
+            score += 10;
             maze.setPellets(maze.getPellets()-1);
 
-            if(sound.eatPellet.getStatus() == MediaPlayer.Status.PLAYING ){
-                sound.eatPellet.stop();
-                sound.eatPellet.play();
-            }else{
-                sound.eatPellet.play();
-            }
+            sound.eatPellet.play();
+            sound.eatPellet.stop();
         }
         else if(maze.isPowerPellet(currentRow,currentColumn)) {
-            score += 3;
-
+            score += 30;
             maze.setPellets(maze.getPellets()-1);
+
+            sound.eatPellet.play();
+            sound.eatPellet.stop();
+        }
+        if(maze.isPellet(currentRow,currentColumn) || maze.isPowerPellet(currentRow,currentColumn)){
+            //replace the pallet cell with empty space
+            Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
+            emptySpace.setFill(Color.TRANSPARENT);
+            maze.setEmptySpace(currentRow,currentColumn);
+            mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn );
+            mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
+            // Sound
             if(sound.eatPellet.getStatus() == MediaPlayer.Status.PLAYING ){
                 sound.eatPellet.stop();
                 sound.eatPellet.play();
             }else{
                 sound.eatPellet.play();
             }
+
+        }else if(maze.isGateIn(currentRow, currentColumn)){
+            for(int i = 0; i < 2; i++){
+                if((maze.getInGates()[i][0] == currentRow)&&(maze.getInGates()[i][1] == currentColumn)){
+                    currentRow = maze.getOutGates()[i][0];
+                    currentColumn = maze.getOutGates()[i][1];
+                    setPosition();
+                }
+            }
         }
-
-
-        //replace the pallet cell with empty space
-        Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
-        emptySpace.setFill(Color.TRANSPARENT);
-        maze.setEmptySpace(currentRow,currentColumn);
-        mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn );
-        mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
     }
 }
