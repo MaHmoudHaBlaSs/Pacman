@@ -51,7 +51,7 @@ public class PacMan extends Character {
         gif.setFitHeight(CELL_SIZE-10);
 
         // to control PacMan Motion
-        Countinuous_Motion = new Timeline(new KeyFrame(Duration.millis(240), e->{
+        Countinuous_Motion = new Timeline(new KeyFrame(Duration.millis(250), e->{
             switch(lastPress){
                 case 0 :
                     this.moveRight();
@@ -105,7 +105,7 @@ public class PacMan extends Character {
             updateScore();
         }
     }
-//    private void updateScore(){
+    //    private void updateScore(){
 //        if(maze.isPellet(currentRow,currentColumn)) {
 //            score += 10;
 //
