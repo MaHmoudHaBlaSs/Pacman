@@ -173,6 +173,7 @@ public class PacMan extends Character {
                 if((maze.getInGates()[i][0] == currentRow)&&(maze.getInGates()[i][1] == currentColumn)){
                     currentRow = maze.getOutGates()[i][0];
                     currentColumn = maze.getOutGates()[i][1];
+                    lastPress = maze.outGates[i][2];
                     setPosition();
                 }
             }
