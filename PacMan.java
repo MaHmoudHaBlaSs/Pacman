@@ -1,8 +1,10 @@
-package org.example.gamedemo;
+package com.example.pac_man;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -11,31 +13,24 @@ import javafx.util.Duration;
 
 public class PacMan extends Character {
     private Maze maze ;
+
+    public MazeView getMazeView() {
+        return mazeView;
+    }
+
     protected MazeView mazeView;
     private int score = 0;
     private int lastPress=0 ;    // To set the Start direction to the right
     private Timeline Countinuous_Motion;
 
+    // create object to control sound effects
     GameSounds sound = new GameSounds();
-
-    public Timeline getCountinuous_Motion() {
-        return Countinuous_Motion;
-    }
-    public int getlastPress(){
-        return lastPress;
-    }
-    public void setlastPress(int lastPress){
-        this.lastPress = lastPress;
-    }
-    public void setCountinuous_Motion(Timeline countinuous_Motion) {
-        Countinuous_Motion = countinuous_Motion;
-    }
-
     public PacMan(int startingI, int startingJ, MazeView mazeView, int gifNumber){
         this.mazeView = mazeView;
         maze = mazeView.getMaze();
         currentRow = startingI;
         currentColumn = startingJ;
+        mazeView.getChildren().add(sound);
 
         // Create the ImageView , stick it to the maze
         ImageView gif = switch(gifNumber){
@@ -56,7 +51,7 @@ public class PacMan extends Character {
         gif.setFitHeight(CELL_SIZE-10);
 
         // to control PacMan Motion
-        Countinuous_Motion = new Timeline(new KeyFrame(Duration.millis(250), e->{
+        Countinuous_Motion = new Timeline(new KeyFrame(Duration.millis(240), e->{
             switch(lastPress){
                 case 0 :
                     this.moveRight();
@@ -77,40 +72,36 @@ public class PacMan extends Character {
             }
         }));
     }
-
-    public MazeView getMazeView() {
-        return mazeView;
+    public Timeline getCountinuous_Motion() {
+        return Countinuous_Motion;
     }
-
-    // @Override
+    public int getlastPress(){
+        return lastPress;
+    }
+    public void setlastPress(int lastPress){
+        this.lastPress = lastPress;
+    }
     public void moveRight(){
         if(!maze.isWall(currentRow,currentColumn+1)) {
-            currentColumn++;
-            setPosition();
+            setPosition(currentRow,currentColumn+1);
             updateScore();
         }
     }
-    //@Override
     public void moveLeft(){
         if(!maze.isWall(currentRow,currentColumn-1)) {
-            currentColumn--;
-            setPosition();
+            setPosition(currentRow,currentColumn-1);
             updateScore();
         }
     }
-    //@Override
     public void moveUp(){
         if(!maze.isWall(currentRow-1,currentColumn)) {
-            currentRow--;
-            setPosition();
+            setPosition(currentRow-1,currentColumn);
             updateScore();
         }
     }
-    //@Override
     public void moveDown(){
         if(!maze.isWall(currentRow+1,currentColumn)) {
-            currentRow++;
-            setPosition();
+            setPosition(currentRow+1,currentColumn);
             updateScore();
         }
     }
@@ -147,5 +138,4 @@ public class PacMan extends Character {
         mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn );
         mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
     }
-
 }
