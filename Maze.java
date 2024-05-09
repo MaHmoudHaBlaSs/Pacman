@@ -3,16 +3,21 @@ import java.util.*;
 
 public class Maze {
     private enum Cell {
-        EMPTY_SPACE,WALL,PELLET,POWER_PELLET
+        EMPTY_SPACE, WALL, PELLET, POWER_PELLET, GATE_IN, GATE_OUT
     }
+
     Cell[][] grid;
     private boolean[][] adjMatrix;//to represent a graph
     private final int ROWS ;
     private final int COLS;
+    private int mazeNum;
     private int pellets = 0; // for 4 Power Pellets in any map
+    protected int[][] inGates = new int[2][2]; // Array of In Gate Indices
+    protected int[][] outGates = new int[2][2];; // Array of Out Gate Indices
     public Maze(int width, int height , int cellSize, int mazeNum) {
         ROWS = height/cellSize;
         COLS = width/cellSize;
+        this.mazeNum = mazeNum;
         grid = new Cell[ROWS][COLS];
         generateMaze(mazeNum);
     }
@@ -21,17 +26,21 @@ public class Maze {
         return ROWS;
     }
 
+    public int getMazeNum() {
+        return mazeNum;
+    }
+
     public int getCols() {
         return COLS;
     }
 
-    public void setPellets(int pellets) {
-        this.pellets = pellets;
-    }
-
+    public void setPellets(int pellets) {this.pellets = pellets;}
     public int getPellets() {
         return pellets;
     }
+
+    public int[][] getInGates() {return inGates;}
+    public int[][] getOutGates() {return outGates;}
 
     private void generateMaze(int mazeNum) {
         // Generate maze layout with walls, let's fill the outer edges with walls
@@ -76,6 +85,10 @@ public class Maze {
                 grid[8][9] = Cell.EMPTY_SPACE;
                 grid[10][9] = Cell.EMPTY_SPACE;
                 grid[16][9] = Cell.EMPTY_SPACE;
+                grid[8][1] = Cell.GATE_IN; inGates[0][0] = 8; inGates[0][1] = 1;
+                grid[10][17] = Cell.GATE_IN;inGates[1][0] = 10; inGates[1][1] = 17;
+                grid[8][17] = Cell.GATE_OUT;outGates[0][0] = 8; outGates[0][1] = 17;
+                grid[10][1] = Cell.GATE_OUT;outGates[1][0] = 10; outGates[1][1] = 1;
                 break;
             case 2:
                 grid[2][9] = Cell.EMPTY_SPACE;
@@ -85,13 +98,20 @@ public class Maze {
                 grid[10][2] = Cell.EMPTY_SPACE;
                 grid[8][16] = Cell.EMPTY_SPACE;
                 grid[10][16] = Cell.EMPTY_SPACE;
+                grid[9][4] = Cell.GATE_IN; inGates[0][0] = 9; inGates[0][1] = 4;
+                grid[9][14] = Cell.GATE_IN; inGates[1][0] = 9; inGates[1][1] = 14;
+                grid[13][15] = Cell.GATE_OUT; outGates[0][0] = 13; outGates[0][1] = 15;
+                grid[5][3] = Cell.GATE_OUT; outGates[1][0] = 5; outGates[1][1] = 3;
                 break;
             case 3:
                 grid[1][9] = Cell.WALL;
                 grid[17][9] = Cell.WALL;
                 grid[10][9] = Cell.WALL;
-                grid[9][1] = Cell.EMPTY_SPACE;
-                grid[9][17] = Cell.EMPTY_SPACE;
+                grid[9][3] = Cell.EMPTY_SPACE;
+                grid[9][15] = Cell.EMPTY_SPACE;
+                grid[10][9] = Cell.EMPTY_SPACE;
+                grid[9][1] = Cell.GATE_IN; inGates[0][0] = 9; inGates[0][1] = 1;
+                grid[9][17] = Cell.GATE_OUT; outGates[0][0] = 9; outGates[0][1] = 17;
                 break;
         }
     }
@@ -99,7 +119,7 @@ public class Maze {
         // Place pellets in the maze
         for (int i = 1; i < ROWS - 1; i++) {
             for (int j = 1; j < COLS - 1; j++) {
-                if (grid[i][j] != Cell.WALL) {
+                if (grid[i][j] != Cell.WALL && grid[i][j] != Cell.GATE_IN && grid[i][j] != Cell.GATE_OUT) {
                     grid[i][j] = Cell.PELLET;// Place a pellet
                     pellets++;
                 }
@@ -121,12 +141,17 @@ public class Maze {
     public boolean isPowerPellet(int x, int y) {
         return grid[x][y] == Cell.POWER_PELLET;
     }
+    // Check For Gate Input
+    public boolean isGateIn(int x, int y) {return grid[x][y] == Cell.GATE_IN;}
+    // Check For Gate Output
+    public boolean isGateOut(int x, int y) {return grid[x][y] == Cell.GATE_OUT;}
     public void setEmptySpace(int row,int column){
         grid[row][column] = Cell.EMPTY_SPACE;
     }
     public boolean isFinishedMap(){
         return pellets == 0;
     }
+
 
     /*-------------------------------------------------Danger Area------------------------------------------*/
     //Directed Ghost Helper Methods.
