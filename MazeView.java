@@ -34,15 +34,15 @@ public class MazeView extends Pane{
                         case 1:
                             wall.setFill(Color.web("#808080").deriveColor(0, 1, 1,1)); // Adjust wall color
                             wall.setStroke(Color.BLACK);
-                        break;
+                            break;
                         case 2:
                             wall.setFill(Color.web("#922724").deriveColor(0, 1, 1, 1)); // Adjust wall color
                             wall.setStroke(Color.ORANGE);
-                        break;
+                            break;
                         case 3:
                             wall.setFill(Color.web("#c0c0c0").deriveColor(0, 1, 1, 1)); // Adjust wall color
                             wall.setStroke(Color.BLACK);
-                        break;
+                            break;
                     }
 
                     wall.setStrokeWidth(3);
