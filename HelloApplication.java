@@ -1,7 +1,5 @@
 package org.example.gamedemo;
 
-
-
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -22,6 +20,7 @@ public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
+
     int level = 1;
     boolean death = false;   // to know pacman is still alive or die
     boolean win = false;      // to know if user win
@@ -199,7 +198,7 @@ public class HelloApplication extends Application {
         return background;
     }
 
-    // Returning ghosts (Array) created based on level
+    // Returning ghosts (Array), created based on level
     public Ghost[] createGhosts(MazeView mazeView, int level) {
         Ghost[] ghosts = new Ghost[4];
         switch (level) {
@@ -255,7 +254,7 @@ public class HelloApplication extends Application {
                     break;
             }
         });
-        pacman.getCountinuous_Motion().setCycleCount(-1);
+        pacman.getCountinuous_Motion().setCycleCount(-1); // Set Pacman Movement Timeline Always Working
         pacman.getCountinuous_Motion().play();
     }
 
@@ -707,7 +706,7 @@ public class HelloApplication extends Application {
 
     /*----------------Helper Methods (Generic)--------------------*/
 
-    // Adding scaling effect to buttons`
+    // Adding scaling effect to buttons
     public void addButtonEffect(Button button, Color before, Color after) {
         button.setOnMouseEntered(event -> {
             button.setTextFill(after);
@@ -793,7 +792,7 @@ public class HelloApplication extends Application {
         }
 
         /*-------------------------set button acctions --------------------------*/
-       button[0].setOnAction(e->{
+        button[0].setOnAction(e->{
             level = 1 ;
             stage.setScene(mainScene);
         });
@@ -822,4 +821,3 @@ public class HelloApplication extends Application {
 
     }
 }
-
