@@ -20,7 +20,6 @@ public class MazeView extends Pane{
     public Maze getMaze(){
         return maze;
     }
-
     private void drawMaze(int mazeNum) {
         int rows = maze.getRows();
         int cols = maze.getCols();
