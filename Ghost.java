@@ -1,5 +1,6 @@
 package org.example.gamedemo;
 
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -10,20 +11,15 @@ import javafx.util.Duration;
 import java.util.List;
 
 public class Ghost extends Character {
-    MazeView mazeView;
-    Maze maze;
-    PacMan pacMan ;
-    Timeline ghostMovement;
-    private enum Direction {
-        UP ,DOWN,RIGHT,LEFT;
-    }
-    private Direction direction;
+    private MazeView mazeView;
+    private Maze maze;
+    private PacMan pacMan ;
+    protected Timeline ghostMovement;
+    //    private Direction direction;
     private int mode = 1;
     private int moves =0;
     private int counter =0;
     private int[][] steps;
-    public void setMode(int mode){this.mode = mode;}
-
     public Ghost(int startingI, int startingJ, MazeView mazeView,int level) {
         this.mazeView = mazeView;
         maze = mazeView.getMaze();
@@ -54,15 +50,14 @@ public class Ghost extends Character {
         gif.setFitHeight(CELL_SIZE-5);
 
         //animate the ghost
-
         switch(level){
             case 1:
-                ghostMovement = new Timeline(new KeyFrame(Duration.millis(500),e->moveGhostRandomly()) );
+                ghostMovement = new Timeline(new KeyFrame(Duration.millis(450),e->moveGhostRandomly()) );
                 ghostMovement.setCycleCount(-1);
                 ghostMovement.play();
                 break;
             case 2:
-                ghostMovement = new Timeline(new KeyFrame(Duration.millis(400),e->moveGhostRandomly()) );
+                ghostMovement = new Timeline(new KeyFrame(Duration.millis(375),e->moveGhostRandomly()) );
                 ghostMovement.setCycleCount(-1);
                 ghostMovement.play();
                 break;
@@ -72,7 +67,7 @@ public class Ghost extends Character {
                 ghostMovement.play();
                 break;
             case 4:
-                ghostMovement = new Timeline(new KeyFrame(Duration.millis(400),e-> moveDirectedGhost()) );
+                ghostMovement = new Timeline(new KeyFrame(Duration.millis(370),e-> moveDirectedGhost()) );
                 ghostMovement.setCycleCount(-1);
                 ghostMovement.play();
                 break;
@@ -82,6 +77,9 @@ public class Ghost extends Character {
                 ghostMovement.play();
                 break;
         }
+    }
+    public void setMode(int mode){
+        this.mode = mode;
     }
     private void moveGhostRandomly(){
         switch(mode)
@@ -114,7 +112,7 @@ public class Ghost extends Character {
                 {
                     moveDown();
                 }
-                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check left side
+                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check lef side
                 {
                     moveLeft();
                 }
@@ -131,7 +129,7 @@ public class Ghost extends Character {
             case 3:
                 // LEFT - TOP - BOTTOM - RIGHT
                 if(moves == 12) {mode = 4; moves = 0;}
-                if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check left side
+                if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check lef side
                 {
                     moveLeft();
                 }
@@ -164,7 +162,7 @@ public class Ghost extends Character {
                 {
                     moveUp();
                 }
-                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check left side
+                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check lef side
                 {
                     moveLeft();
                 }
@@ -172,8 +170,6 @@ public class Ghost extends Character {
                 break;
         }
     }
-
-    //Check The Ghost Is Stuck
     public boolean isStuck(int i, int j){
         int walls = 0;
         if(maze.isWall(i-1,j)) {walls++;} // Check top side
@@ -182,9 +178,8 @@ public class Ghost extends Character {
         if(maze.isWall(i, j-1)) {walls++;}// Check left side
         return walls == 3;
     }
-
     public void moveRight(){
-        setPosition(currentRow,currentColumn+1);// Internal Change In currentRow & currentColumn.
+        setPosition(currentRow,currentColumn+1);
         direction = Direction.RIGHT;
     }
     public void moveLeft(){
@@ -200,7 +195,7 @@ public class Ghost extends Character {
         direction = Direction.DOWN;
     }
 
-    /*-----------------------------Directed Ghost Methods-----------------------------*/
+    /*-----------------------------------------------------------------------------------*/
     private void setPath(){
         //start: ghost location , end: pacMan location
         int start = maze.indicesToCell(this.currentRow,this.currentColumn);
@@ -215,10 +210,10 @@ public class Ghost extends Character {
         }
 
         //return counter to 0
-        counter=1;
+        counter=0;
     }
     private void moveDirectedGhost(){
-        if(counter%5 ==0 )
+        if(counter%4 ==0 )
             setPath();
 
         if (counter<steps.length){
@@ -226,4 +221,10 @@ public class Ghost extends Character {
         }
         counter++;
     }
+    @Override
+    protected void setPosition(){
+        this.getGif().setX(currentColumn*CELL_SIZE);
+        this.getGif().setY(currentRow*CELL_SIZE);
+    }
+
 }
