@@ -14,64 +14,60 @@ public class Character extends Pane {
     protected int nextRow = 0;
     protected int nextColumn = 0;
     private boolean reflected = false;
-    private Timeline mover ;
+    private Timeline moverTl;
     private double dx;
     private double dy;
-    private Timeline setPositionTm;
+    private Timeline positionTl;
     int counter = 0;
     protected Direction direction;
 
     public Character(){
-        mover =  new Timeline(new KeyFrame(Duration.millis(10), e-> move(dx,dy)));
-        mover.setCycleCount(CELL_SIZE/2);
-        mover.setOnFinished( e->{
+        setMoverTl();
+        setPositionTl();
+    }
+
+    private void setMoverTl(){
+        // moverTl  Changes Character Gif Position Every 10ms by 2 Pixels For The Cycle
+        // So It Should be Played For 20 Times to Reach 40 Pixels(CELL_WIDTH) [Changes currentRow - currentColumn]
+        moverTl =  new Timeline(new KeyFrame(Duration.millis(10), e-> move(dx,dy)));
+        moverTl.setCycleCount(CELL_SIZE/2);
+        moverTl.setOnFinished(e->{
             counter =0;
         });
-
-        setPositionTm = new Timeline(new KeyFrame(Duration.millis(250),e->{
-            gif.setX(currentColumn*CELL_SIZE +5);
-            gif.setY(currentRow*CELL_SIZE);}
-        ));
-
-        setPositionTm.setCycleCount(1);
     }
-    public int getCurrentColumn() {
-        return currentColumn;
-    }
-
-    public int getCurrentRow() {
-        return currentRow;
-    }
-
-    protected void setPosition(int row,int col){
-        dx = col-currentColumn ;
-        dy = row -currentRow ;
-
-        nextColumn = col;
-        nextRow = row;
-
-        mover.play();
-    }
-
     private void move(double dx , double dy){
         gif.setY(gif.getY() + dy * 2);
         gif.setX(gif.getX() + dx * 2);
         counter++;
+        // Update Index After 13 Cycles
         if(counter == 13){
             currentRow = nextRow;
             currentColumn = nextColumn;
         }
     }
-    protected void setPosition(){
-        setPositionTm.play();
+    private void setPositionTl(){
+        // positionTl Changes Character Gif Coordinates Through a Certain Amount of Time (190ms)
+        // [Doesn't Change currentRow - currentColumn]
+        positionTl = new Timeline(new KeyFrame(Duration.millis(250), e->{
+            gif.setX(currentColumn*CELL_SIZE +5);
+            gif.setY(currentRow*CELL_SIZE);}
+        ));
+        positionTl.setCycleCount(1);
     }
+    protected void setPosition(int row,int col){
+        // Difference in Coordinates [Index]
+        dx = col-currentColumn ;
+        dy = row -currentRow ;
 
-    public void setGif(ImageView gif) {
-        this.gif = gif;
+        // Destination
+        nextColumn = col;
+        nextRow = row;
+
+        moverTl.play();
     }
-    public ImageView getGif(){
-        return gif;
-    }
+    protected void setPosition(){positionTl.play();}
+
+    /*-------------Gif Orientation Methods---------------*/
     public void reflectVerticallyToLeft() {
         // Reset to initial angel
         gif.setRotate(0);
@@ -101,10 +97,15 @@ public class Character extends Pane {
         // Flip the Pacman image horizontally to the top
         gif.setRotate(270);
     }
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
-    public Direction getDirection() {
-        return direction;
-    }
+    /*--------------------------------------------------*/
+
+
+    /*-----------------Setters / Getters-----------------*/
+    public int getCurrentColumn() {return currentColumn;}
+    public int getCurrentRow() {return currentRow;}
+    public ImageView getGif(){return gif;}
+    public Direction getDirection() {return direction;}
+    public void setGif(ImageView gif) {this.gif = gif;}
+    public void setDirection(Direction direction) {this.direction = direction;}
+    /*-------------------------------------------------*/
 }
