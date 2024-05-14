@@ -2,9 +2,7 @@ package org.example.gamedemo;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -15,19 +13,18 @@ public class PacMan extends Character {
     private Maze maze ;
     protected MazeView mazeView;
     private int score = 0;
-    private int lastPress = 0 ;    // To set the Start direction to the right
-    private Timeline Countinuous_Motion;
-
-    // create object to control sound effects
+    private Timeline autoMovement;
+    // Object to Control Sound Effects
     GameSounds sound = new GameSounds();
     public PacMan(int startingI, int startingJ, MazeView mazeView, int gifNumber){
         this.mazeView = mazeView;
         maze = mazeView.getMaze();
         currentRow = startingI;
         currentColumn = startingJ;
+        direction = Direction.RIGHT; // Default Direction
         mazeView.getChildren().add(sound);
 
-        // Create the ImageView (As Chosen)
+        // Create the Pacman Gif (As Chosen)
         ImageView gif = switch(gifNumber){
             case 1 -> new ImageView("PacmanEye.gif");
             case 2 -> new ImageView("pacboy.gif");
@@ -39,46 +36,40 @@ public class PacMan extends Character {
         setGif(gif);
 
         // Set the initial position
-        setPosition(); // Internally Invokes 'setPosition' Timeline
+        setPosition(); // Internally Plays 'positionTl' Timeline
 
-        // Set the size (adjust as needed)
+        // Set The Size (Adjust as Needed)
         gif.setFitWidth(CELL_SIZE-10);
         gif.setFitHeight(CELL_SIZE-10);
 
-        // to control PacMan Motion
-        Countinuous_Motion = new Timeline(new KeyFrame(Duration.millis(250), e->{
-            switch(lastPress){
-                case 0 :
+        // To Control Pacman Motion
+        autoMovement = new Timeline(new KeyFrame(Duration.millis(240), e->{
+            switch(direction){
+                case RIGHT :
                     this.moveRight();
                     this.reflectVerticallyToRight();
                     break;
-                case 1:
+                case DOWN:
                     this.moveDown();
                     this.rotateToBottom();
                     break;
-                case 2:
+                case UP:
                     this.moveUp();
                     this.rotateToTop();
                     break;
-                case 3:
+                case LEFT:
                     this.moveLeft();
                     this.reflectVerticallyToLeft();
                     break;
             }
         }));
-        Countinuous_Motion.setCycleCount(-1);
     }
-    /*-----------------------Getters / Setters--------------------------*/
-    public MazeView getMazeView() {return mazeView;}
-    public Timeline getCountinuous_Motion() {return Countinuous_Motion;}
-    public int getlastPress(){return lastPress;}
-    public void setlastPress(int lastPress){this.lastPress = lastPress;}
-    //public void setlastPress(Directions lastPress){this.lastPress = lastPress;}
-    /*------------------------------------------------------------------*/
+
+    /*-----------------Movement Methods-----------------*/
     public void moveRight(){
         if(!maze.isWall(currentRow,currentColumn+1)) {
-            setPosition(currentRow,currentColumn+1); // Internal Change in I and J
-            updateScore(); // Deals With New I and J
+            setPosition(currentRow,currentColumn+1); // Internal Invoking of moverTl
+            updateScore();
         }
     }
     public void moveLeft(){
@@ -99,27 +90,24 @@ public class PacMan extends Character {
             updateScore();
         }
     }
-
+    /*--------------------------------------------------*/
     private void updateScore(){
-
-        if(maze.isPellet(currentRow,currentColumn)) {
+        if(maze.isPellet(nextRow,nextColumn)) {
             score += 10;
-            maze.setPellets(maze.getPellets()-1); // Update Pellets Num
+            maze.setPellets(maze.getPellets()-1);
         }
-        else if(maze.isPowerPellet(currentRow,currentColumn)) {
+        else if(maze.isPowerPellet(nextRow,nextColumn)) {
             score += 30;
-            maze.setPellets(maze.getPellets()-1); // Update Pellets Num
-
+            maze.setPellets(maze.getPellets()-1);
         }
 
-        if(maze.isPellet(currentRow,currentColumn) || maze.isPowerPellet(currentRow,currentColumn)){
-
-            //Replace The Pellet Cell With Empty Space [Transparent Rectangle]
-            Rectangle emptySpace = new Rectangle(currentColumn * CELL_SIZE, currentRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
+        if(maze.isPellet(nextRow,nextColumn) || maze.isPowerPellet(nextRow,nextColumn)){
+            // Replace The Pellet Cell With Empty Space
+            Rectangle emptySpace = new Rectangle(nextColumn * CELL_SIZE, nextRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
             emptySpace.setFill(Color.TRANSPARENT);
-            maze.setEmptySpace(currentRow,currentColumn);
-            mazeView.getChildren().remove(currentRow* maze.getCols() + currentColumn ); // The Eq Converts Index To a Number In The Grid
-            mazeView.getChildren().add(currentRow* maze.getCols() + currentColumn, emptySpace);
+            maze.setEmptySpace(nextRow,nextColumn);
+            mazeView.getChildren().remove(nextRow* maze.getCols() + nextColumn );
+            mazeView.getChildren().add(nextRow* maze.getCols() + nextColumn, emptySpace);
 
             // Sound
             if(sound.eatPellet.getStatus() == MediaPlayer.Status.PLAYING ){
@@ -129,15 +117,22 @@ public class PacMan extends Character {
                 sound.eatPellet.play();
             }
 
-        }else if(maze.isGateIn(currentRow, currentColumn)){
+        }
+        else if(maze.isGateIn(nextRow, nextColumn)){
             for(int i = 0; i < 2; i++){
-                if((maze.getInGates()[i][0] == currentRow)&&(maze.getInGates()[i][1] == currentColumn)){
-                    currentRow = maze.getOutGates()[i][0];
-                    currentColumn = maze.getOutGates()[i][1];
-                    lastPress = maze.outGates[i][2]; // Adjusted in Maze Class.
+                if((maze.getInGates()[i][0] == nextRow)&&(maze.getInGates()[i][1] == nextColumn)){
+                    nextRow = maze.getOutGates()[i][0];
+                    nextColumn = maze.getOutGates()[i][1];
+                    direction = maze.getOutGateDirection()[i]; // Adjusted In Maze Class
                     setPosition();
                 }
             }
         }
     }
+
+    /*-----------------Setters / Getters-----------------*/
+    public Timeline getAutoMovement() {return autoMovement;}
+    public MazeView getMazeView() {return mazeView;}
+    /*---------------------------------------------------*/
+
 }
