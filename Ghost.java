@@ -1,5 +1,4 @@
-package com.example.pac_man;
-
+package org.example.gamedemo;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -23,6 +22,8 @@ public class Ghost extends Character {
     private int moves =0;
     private int counter =0;
     private int[][] steps;
+    public void setMode(int mode){this.mode = mode;}
+
     public Ghost(int startingI, int startingJ, MazeView mazeView,int level) {
         this.mazeView = mazeView;
         maze = mazeView.getMaze();
@@ -82,9 +83,6 @@ public class Ghost extends Character {
                 break;
         }
     }
-    public void setMode(int mode){
-        this.mode = mode;
-    }
     private void moveGhostRandomly(){
         switch(mode)
         {
@@ -116,7 +114,7 @@ public class Ghost extends Character {
                 {
                     moveDown();
                 }
-                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check lef side
+                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check left side
                 {
                     moveLeft();
                 }
@@ -133,7 +131,7 @@ public class Ghost extends Character {
             case 3:
                 // LEFT - TOP - BOTTOM - RIGHT
                 if(moves == 12) {mode = 4; moves = 0;}
-                if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check lef side
+                if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check left side
                 {
                     moveLeft();
                 }
@@ -166,7 +164,7 @@ public class Ghost extends Character {
                 {
                     moveUp();
                 }
-                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check lef side
+                else if(!maze.isWall(currentRow, currentColumn-1) && ((direction != Direction.RIGHT) || (isStuck(currentRow, currentColumn)))) // Check left side
                 {
                     moveLeft();
                 }
@@ -174,6 +172,8 @@ public class Ghost extends Character {
                 break;
         }
     }
+
+    //Check The Ghost Is Stuck
     public boolean isStuck(int i, int j){
         int walls = 0;
         if(maze.isWall(i-1,j)) {walls++;} // Check top side
@@ -182,8 +182,9 @@ public class Ghost extends Character {
         if(maze.isWall(i, j-1)) {walls++;}// Check left side
         return walls == 3;
     }
+
     public void moveRight(){
-        setPosition(currentRow,currentColumn+1);
+        setPosition(currentRow,currentColumn+1);// Internal Change In currentRow & currentColumn.
         direction = Direction.RIGHT;
     }
     public void moveLeft(){
@@ -199,7 +200,7 @@ public class Ghost extends Character {
         direction = Direction.DOWN;
     }
 
-    /*----------------------------------------------------------------------------------------------------------------*/
+    /*-----------------------------Directed Ghost Methods-----------------------------*/
     private void setPath(){
         //start: ghost location , end: pacMan location
         int start = maze.indicesToCell(this.currentRow,this.currentColumn);
