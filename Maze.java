@@ -1,4 +1,5 @@
 package org.example.gamedemo;
+
 import java.util.*;
 
 public class Maze {
@@ -7,13 +8,16 @@ public class Maze {
     }
 
     Cell[][] grid;
-    private boolean[][] adjMatrix;//to represent a graph
+    private boolean[][] adjMatrix;//to Represent a graph
     private final int ROWS ;
     private final int COLS;
     private int mazeNum;
-    private int pellets = 0; // for 4 Power Pellets in any map
+    private int pellets = 0; // 4 Power Pellets in Any Map
     protected int[][] inGates = new int[2][2]; // Array of In Gate Indices
     protected int[][] outGates = new int[2][3];; // Array of Out Gate Indices
+    private Direction[] outGateDirection = new Direction[2]; // For The Direction When Exiting an OutGate [Right - Left]
+
+
     public Maze(int width, int height , int cellSize, int mazeNum) {
         ROWS = height/cellSize;
         COLS = width/cellSize;
@@ -22,28 +26,10 @@ public class Maze {
         generateMaze(mazeNum);
     }
 
-    public int getRows() {
-        return ROWS;
-    }
 
-    public int getMazeNum() {
-        return mazeNum;
-    }
-
-    public int getCols() {
-        return COLS;
-    }
-
-    public void setPellets(int pellets) {this.pellets = pellets;}
-    public int getPellets() {
-        return pellets;
-    }
-
-    public int[][] getInGates() {return inGates;}
-    public int[][] getOutGates() {return outGates;}
 
     private void generateMaze(int mazeNum) {
-        // Generate maze layout with walls, let's fill the outer edges with walls
+        // Generate Maze Layout [Outer Edges] With Walls
         for (int i = 0; i < ROWS; i++) {
             grid[i][0] = Cell.WALL;
             grid[i][COLS - 1] = Cell.WALL;
@@ -53,11 +39,12 @@ public class Maze {
             grid[ROWS - 1][j] = Cell.WALL;
         }
 
-        // Implement maze generation algorithm to create interior walls
+        // Generate The Interior Maze Walls
         generateInteriorWalls(mazeNum);
-
-        // Place pellets and power pellets
+        // Place Pellets And Power Pellets
         placePellets();
+
+        // Helper Method For Directed Ghost
         constructAdjMatrix();
     }
     private void generateInteriorWalls(int mazeNum) {
@@ -86,8 +73,10 @@ public class Maze {
                 grid[16][9] = Cell.EMPTY_SPACE;
                 grid[8][1] = Cell.GATE_IN; inGates[0][0] = 8; inGates[0][1] = 1;
                 grid[10][17] = Cell.GATE_IN;inGates[1][0] = 10; inGates[1][1] = 17;
-                grid[8][17] = Cell.GATE_OUT;outGates[0][0] = 8; outGates[0][1] = 17;outGates[0][2] = 0; // 0 For Right Direction in Gate One
-                grid[10][1] = Cell.GATE_OUT;outGates[1][0] = 10; outGates[1][1] = 1; outGates[1][2] =3; // 3 for Left In Gate Two
+                grid[8][17] = Cell.GATE_OUT;outGates[0][0] = 8; outGates[0][1] = 17;
+                outGateDirection[0] = Direction.RIGHT;//For Right Direction in Gate One
+                grid[10][1] = Cell.GATE_OUT;outGates[1][0] = 10; outGates[1][1] = 1;
+                outGateDirection[1] = Direction.LEFT;//For Left In Gate Two
                 break;
             case 2:
                 grid[2][9] = Cell.EMPTY_SPACE;
@@ -99,8 +88,10 @@ public class Maze {
                 grid[10][16] = Cell.EMPTY_SPACE;
                 grid[9][4] = Cell.GATE_IN; inGates[0][0] = 9; inGates[0][1] = 4;
                 grid[9][14] = Cell.GATE_IN; inGates[1][0] = 9; inGates[1][1] = 14;
-                grid[13][15] = Cell.GATE_OUT; outGates[0][0] = 13; outGates[0][1] = 15; outGates[0][2] = 0;// 0 For Right Direction in Gate One
-                grid[5][3] = Cell.GATE_OUT; outGates[1][0] = 5; outGates[1][1] = 3; outGates[1][2] =3;// 3 for Left In Gate Two
+                grid[13][15] = Cell.GATE_OUT; outGates[0][0] = 13; outGates[0][1] = 15;
+                outGateDirection[0] = Direction.RIGHT;
+                grid[5][3] = Cell.GATE_OUT; outGates[1][0] = 5; outGates[1][1] = 3;
+                outGateDirection[1] = Direction.LEFT;
                 break;
             case 3:
                 grid[1][9] = Cell.WALL;
@@ -110,7 +101,8 @@ public class Maze {
                 grid[9][15] = Cell.EMPTY_SPACE;
                 grid[10][9] = Cell.EMPTY_SPACE;
                 grid[9][1] = Cell.GATE_IN; inGates[0][0] = 9; inGates[0][1] = 1;
-                grid[9][17] = Cell.GATE_OUT; outGates[0][0] = 9; outGates[0][1] = 17; outGates[0][2] = 0;// 0 For Right Direction in Gate One
+                grid[9][17] = Cell.GATE_OUT; outGates[0][0] = 9; outGates[0][1] = 17;
+                outGateDirection[0] = Direction.RIGHT;
                 break;
         }
     }
@@ -131,6 +123,9 @@ public class Maze {
         grid[ROWS - 2][1] = Cell.POWER_PELLET;
         grid[ROWS - 2][COLS - 2] = Cell.POWER_PELLET;
     }
+    public void setEmptySpace(int row,int column){grid[row][column] = Cell.EMPTY_SPACE;}
+
+    /*------------------Checking Methods-----------------*/
     public boolean isWall(int x, int y) {
         return grid[x][y] == Cell.WALL;
     }
@@ -142,13 +137,21 @@ public class Maze {
     }
     public boolean isGateIn(int x, int y) {return grid[x][y] == Cell.GATE_IN;}
     public boolean isGateOut(int x, int y) {return grid[x][y] == Cell.GATE_OUT;}
-    public void setEmptySpace(int row,int column){
-        grid[row][column] = Cell.EMPTY_SPACE;
-    }
     public boolean isFinishedMap(){
         return pellets == 0;
     }
+    /*---------------------------------------------------*/
 
+    /*-----------------Setters / Getters-----------------*/
+    public int getRows() {return ROWS;}
+    public int getMazeNum() {return mazeNum;}
+    public int getCols() {return COLS;}
+    public int getPellets() {return pellets;}
+    public int[][] getInGates() {return inGates;}
+    public int[][] getOutGates() {return outGates;}
+    public Direction[] getOutGateDirection() {return outGateDirection;}
+    public void setPellets(int pellets) {this.pellets = pellets;}
+    /*---------------------------------------------------*/
 
     //-------------------------------------------------Danger Area------------------------------------------/
     //Directed Ghost Helper Methods.
