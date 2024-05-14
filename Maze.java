@@ -1,4 +1,4 @@
-package com.example.pac_man;
+package org.example.gamedemo;
 import java.util.*;
 
 public class Maze {
@@ -60,7 +60,6 @@ public class Maze {
         placePellets();
         constructAdjMatrix();
     }
-    // another interiorWallGenerator needed
     private void generateInteriorWalls(int mazeNum) {
         int[][] arr = switch (mazeNum){
             case 1 -> new int[][] {{2, 4, 5, 7, 8, 9}, {2, 7}, {2, 3, 5, 7, 9}, {5, 9}, {1, 3, 4, 5, 6, 7, 9}, {1, 5}, {3, 5, 7, 8, 9}};
@@ -87,8 +86,8 @@ public class Maze {
                 grid[16][9] = Cell.EMPTY_SPACE;
                 grid[8][1] = Cell.GATE_IN; inGates[0][0] = 8; inGates[0][1] = 1;
                 grid[10][17] = Cell.GATE_IN;inGates[1][0] = 10; inGates[1][1] = 17;
-                grid[8][17] = Cell.GATE_OUT;outGates[0][0] = 8; outGates[0][1] = 17;outGates[0][2] = 0;
-                grid[10][1] = Cell.GATE_OUT;outGates[1][0] = 10; outGates[1][1] = 1; outGates[1][2] =3;
+                grid[8][17] = Cell.GATE_OUT;outGates[0][0] = 8; outGates[0][1] = 17;outGates[0][2] = 0; // 0 For Right Direction in Gate One
+                grid[10][1] = Cell.GATE_OUT;outGates[1][0] = 10; outGates[1][1] = 1; outGates[1][2] =3; // 3 for Left In Gate Two
                 break;
             case 2:
                 grid[2][9] = Cell.EMPTY_SPACE;
@@ -100,8 +99,8 @@ public class Maze {
                 grid[10][16] = Cell.EMPTY_SPACE;
                 grid[9][4] = Cell.GATE_IN; inGates[0][0] = 9; inGates[0][1] = 4;
                 grid[9][14] = Cell.GATE_IN; inGates[1][0] = 9; inGates[1][1] = 14;
-                grid[13][15] = Cell.GATE_OUT; outGates[0][0] = 13; outGates[0][1] = 15;outGates[0][2] = 0;
-                grid[5][3] = Cell.GATE_OUT; outGates[1][0] = 5; outGates[1][1] = 3;outGates[1][2] =3;
+                grid[13][15] = Cell.GATE_OUT; outGates[0][0] = 13; outGates[0][1] = 15; outGates[0][2] = 0;// 0 For Right Direction in Gate One
+                grid[5][3] = Cell.GATE_OUT; outGates[1][0] = 5; outGates[1][1] = 3; outGates[1][2] =3;// 3 for Left In Gate Two
                 break;
             case 3:
                 grid[1][9] = Cell.WALL;
@@ -111,7 +110,7 @@ public class Maze {
                 grid[9][15] = Cell.EMPTY_SPACE;
                 grid[10][9] = Cell.EMPTY_SPACE;
                 grid[9][1] = Cell.GATE_IN; inGates[0][0] = 9; inGates[0][1] = 1;
-                grid[9][17] = Cell.GATE_OUT; outGates[0][0] = 9; outGates[0][1] = 17;
+                grid[9][17] = Cell.GATE_OUT; outGates[0][0] = 9; outGates[0][1] = 17; outGates[0][2] = 0;// 0 For Right Direction in Gate One
                 break;
         }
     }
