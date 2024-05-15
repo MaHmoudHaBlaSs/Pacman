@@ -456,7 +456,7 @@ public class HelloApplication extends Application {
         });
     }
 
-    public void setLevelScene(){
+       public void setLevelScene(){
 
         //set background
         ImageView LevelImageView = new ImageView("levelPic.jpg" );
@@ -464,46 +464,28 @@ public class HelloApplication extends Application {
         LevelImageView.setFitHeight(BOARD_HEIGHT/1.25);
 
         // array of Buttons
-        Button[] button = new Button[5];
+        Button[] levelBtns = new Button[5];
 
         Polygon buttonShape = new Polygon(0, 40, 50, 0, 170, 0, 220, 40, 170, 80, 50, 80);
 
         //---------------------------------- main Buttons design ----------------------------------//
-        button[0] = new Button("BEGINNER");
-        button[1] = new Button("EASY");
-        button[2] = new Button("NORMAL");
-        button[3] = new Button("HARD");
-        button[4] = new Button("INSANE");
+        String[] levelBtnsTxt = {"BEGINNER","EASY","NORMAL" ,"HARD" , "INSANE"};
 
         for (int i = 0; i < 5; i++) {
+            levelBtns[i] = new Button(levelBtnsTxt[i]);
 
-            button[i].setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 20));
-            button[i].setTextFill(Color.rgb(255,215,0));
-            button[i].setStyle("-fx-background-color:transparent ; -fx-border-color:#f0f8ff ;-fx-border-width: 2.5;");
-            button[i].setPrefSize(220, 80);
-            button[i].setShape(buttonShape);
+            levelBtns[i].setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 20));
+            levelBtns[i].setTextFill(Color.rgb(255,215,0));
+            levelBtns[i].setStyle("-fx-background-color:transparent ; -fx-border-color:#f0f8ff ;-fx-border-width: 2.5;");
+            levelBtns[i].setPrefSize(220, 80);
+            levelBtns[i].setShape(buttonShape);
 
-        }
-
-        //----------------------------- Pane of Buttons-------------------------------/
-        GridPane gridButtonsPane = new GridPane();
-        gridButtonsPane.addColumn(0, button[0], button[1]);
-        gridButtonsPane.addColumn(1, button[3], button[4]);
-        gridButtonsPane.setHgap(130);
-        gridButtonsPane.setVgap(5);
-
-        StackPane buttonsPane = new StackPane(gridButtonsPane , button[2]);
-        buttonsPane.setLayoutX(46);
-        buttonsPane.setLayoutY(170);
-
-        //---------------------------------- Buttons event ----------------------------------//
-
-        for( Button testBt:button){
             // ---------------------------------- MouseEntered event ---------------------------------- //
-            testBt.setOnMouseEntered(e->{
-                testBt.setTextFill(Color.BLACK);
-                testBt.setStyle("-fx-background-color:orange ;");
-                testBt.setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 28));
+            int finalI = i;
+            levelBtns[i].setOnMouseEntered(e->{
+                levelBtns[finalI].setTextFill(Color.BLACK);
+                levelBtns[finalI].setStyle("-fx-background-color:orange ;");
+                levelBtns[finalI].setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 28));
                 if(sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING ){
                     sound.btnSound.stop();
                     sound.btnSound.play();
@@ -512,36 +494,31 @@ public class HelloApplication extends Application {
                 }
             });
             // ---------------------------------- MouseExited event ---------------------------------- //
-            testBt.setOnMouseExited(e->{
-                testBt.setTextFill(Color.rgb(255,215,0));
-                testBt.setStyle("-fx-background-color:transparent ; -fx-border-color:#f0f8ff ;-fx-border-width: 2.5;");
-                testBt.setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 20));
+            levelBtns[finalI].setOnMouseExited(e->{
+                levelBtns[finalI].setTextFill(Color.rgb(255,215,0));
+                levelBtns[finalI].setStyle("-fx-background-color:transparent ; -fx-border-color:#f0f8ff ;-fx-border-width: 2.5;");
+                levelBtns[finalI].setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 20));
             });
 
+            /*-------------------------set button actions --------------------------*/
+            levelBtns[i].setOnAction(e->{
+                level = finalI+1 ;
+                stage.setScene(mainScene);
+            });
 
         }
 
-        /*-------------------------set button acctions --------------------------*/
-        button[0].setOnAction(e->{
-            level = 1 ;
-            stage.setScene(mainScene);
-        });
-        button[1].setOnAction(e->{
-            level = 2 ;
-            stage.setScene(mainScene);
-        });
-        button[2].setOnAction(e->{
-            level = 3 ;
-            stage.setScene(mainScene);
-        });
-        button[3].setOnAction(e->{
-            level = 4 ;
-            stage.setScene(mainScene);
-        });
-        button[4].setOnAction(e->{
-            level = 5 ;
-            stage.setScene(mainScene);
-        });
+        //----------------------------- Pane of Buttons-------------------------------/
+        GridPane gridButtonsPane = new GridPane();
+        gridButtonsPane.addColumn(0, levelBtns[0], levelBtns[1]);
+        gridButtonsPane.addColumn(1, levelBtns[3], levelBtns[4]);
+        gridButtonsPane.setHgap(130);
+        gridButtonsPane.setVgap(5);
+
+        StackPane buttonsPane = new StackPane(gridButtonsPane , levelBtns[2]);
+        buttonsPane.setLayoutX(46);
+        buttonsPane.setLayoutY(170);
+
 
 
         Pane levePane = new Pane();
