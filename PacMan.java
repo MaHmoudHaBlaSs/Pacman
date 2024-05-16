@@ -22,7 +22,6 @@ public class PacMan extends Character {
         currentRow = startingI;
         currentColumn = startingJ;
         direction = Direction.RIGHT; // Default Direction
-        mazeView.getChildren().add(sound);
 
         // Create the Pacman Gif (As Chosen)
         ImageView gif = switch(gifNumber){
