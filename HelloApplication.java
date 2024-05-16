@@ -89,8 +89,12 @@ public class HelloApplication extends Application {
         MediaView introView = new MediaView(introPlayer);
         introView.setFitWidth(BOARD_WIDTH/ 1.14);
         introView.setFitHeight(BOARD_HEIGHT/ 1.1); // Trial & Error Value
-        introPlayer.play();
-
+        if(introPlayer.getStatus() == MediaPlayer.Status.PLAYING ){
+            introPlayer.stop();
+            introPlayer.play();
+        }else{
+            introPlayer.play();
+        }
         String[] introStrs = {"CSE-27-JavaNewbies", "Present", "Press \"Enter\" To Skip"};
         Text[] introTxts = new Text[3];
         FadeTransition[] txtFd = new FadeTransition[3];
