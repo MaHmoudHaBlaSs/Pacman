@@ -1,9 +1,6 @@
-package com.example.pac_man;
+package org.example.gamedemo;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.KeyFrame;
-import javafx.animation.StrokeTransition;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -28,18 +25,22 @@ public class HelloApplication extends Application {
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
     int level = 1;
-    private MediaPlayer introPlayer;
-    private boolean introFinished = false;
+    private Ghost[] ghosts;
+    private PacMan pacman;
+    private MazeView mazeView;
     private GameSounds sound;
+    private MediaPlayer introPlayer;
     private static Stage stage;
     private Scene mainScene;
     private Scene charactersScene;
     private Scene mapsScene;
     private Scene infoScene;
     private Scene levelScene;
+    private boolean introFinished = false;
     private int mapNumber = 1;
     private Button[] mainMenueBtns;
     int pacmanGifNum = 1;
+    GamePane gamepane;
 
     @Override
     public void start(Stage primaryStage) {
@@ -48,24 +49,20 @@ public class HelloApplication extends Application {
 
         // create object to control sound effects
         sound = new GameSounds();
-//        sound.start_sound.play();
 
-
-
-        //main menu
+        //Main Menu
         setMainScene();
 
         //Characters Menu
         setCharactersScene();
 
-        //INFO scene
+        //Info Scene
         setInfoScene();
 
-
-        //level scene
+        //Level Scene
         setLevelScene();
 
-        //maps menu
+        //Maps Menu
         setMapScene();
 
         primaryStage.setScene(mainScene);
@@ -85,7 +82,7 @@ public class HelloApplication extends Application {
         mainScene = new Scene(mainMenuPane, BOARD_WIDTH / 1.15, BOARD_HEIGHT / 1.25);
 
         // Set Intro Video
-        introPlayer = new MediaPlayer(new Media(new File("C:\\Users\\MAHMOUD ELBAZ\\Documents\\java projects\\new_era\\Pac_Man\\src\\main\\resources\\Intro.mp4").toURI().toString()));
+        introPlayer = new MediaPlayer(new Media(new File("D:\\Resources\\Sounds\\Intro.mp4").toURI().toString()));
         MediaView introView = new MediaView(introPlayer);
         introView.setFitWidth(BOARD_WIDTH/ 1.14);
         introView.setFitHeight(BOARD_HEIGHT/ 1.1); // Trial & Error Value
@@ -142,14 +139,16 @@ public class HelloApplication extends Application {
             introFinished = true;
         }));
         introTl.setOnFinished(event -> {
-            //set background
+
+            // Set Background
             ImageView mainImageView = new ImageView("mainMenuPic.jpg");
             mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
             mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
 
-            //set the buttons
+            // Set The Panes
             Pane btnsPane = mainMenuBtnsPane();
-            mainMenuPane.getChildren().addAll(mainImageView, btnsPane);
+            Pane palestinePane = palestinePane();
+            mainMenuPane.getChildren().addAll(mainImageView, btnsPane, palestinePane);
         });
         introTl.setCycleCount(1);
         introTl.play();
@@ -164,14 +163,17 @@ public class HelloApplication extends Application {
                         }
                         introPlayer.stop();
                         mainMenuPane.getChildren().clear();
-                        //set background
+
+                        // Set Background
                         ImageView mainImageView = new ImageView("mainMenuPic.jpg");
                         mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
                         mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
 
-                        //set the buttons
+                        // Set The Panes
                         Pane btnsPane = mainMenuBtnsPane();
-                        mainMenuPane.getChildren().addAll(mainImageView, btnsPane);
+                        Pane palestinePane = palestinePane();
+                        mainMenuPane.getChildren().addAll(mainImageView, btnsPane, palestinePane);
+
                         introFinished = true;
                     }
                 }
@@ -191,7 +193,7 @@ public class HelloApplication extends Application {
         buttonsPane.setLayoutY(352);
 
         mainMenueBtns = new Button[5];
-        String[] btnsText = {"Play", "CHARACTERS", "MAPS", "INFO","LEVEL"};
+        String[] btnsText = {"Play", "CHARACTERS", "MAPS", "LEVEL", "INFO"};
 
         for (int i = 0; i < 5; i++) {
             //styling
@@ -242,16 +244,37 @@ public class HelloApplication extends Application {
             sound.start_sound.stop();
         });
         mainMenueBtns[3].setOnAction(e -> {
-            stage.setScene(infoScene);
+            stage.setScene(levelScene);
             sound.start_sound.stop();
         });
         mainMenueBtns[4].setOnAction(e -> {
-            stage.setScene(levelScene);
+            stage.setScene(infoScene);
             sound.start_sound.stop();
         });
         return buttonsPane;
     }
+    private Pane palestinePane(){
+        HBox palestinePane = new HBox();
 
+        // Set Palestine Flag
+        ImageView[] caseView = {new ImageView("TheCase.png"), new ImageView("TheCase.png")};
+        for(int i = 0; i < 2; i++){
+            caseView[i].setFitWidth(60);
+            caseView[i].setFitHeight(60);
+        }
+        // Set Case Text
+        Text caseTxt = new Text("We Live For\n The CASE.");
+        caseTxt.setFont(Font.font("Garamond", 20));
+        caseTxt.setFill(Color.DARKRED);
+        caseTxt.setStroke(Color.RED);
+        caseTxt.setStrokeWidth(.7);
+
+        palestinePane.getChildren().addAll(caseView[0] ,caseTxt, caseView[1]);
+        palestinePane.setLayoutX(222);
+        palestinePane.setLayoutY(0);
+
+        return palestinePane;
+    }
 
     /*---------------------------------------------------*/
 
@@ -295,7 +318,7 @@ public class HelloApplication extends Application {
             charactersBtns[i].setStyle("-fx-background-color: transparent;");
             charactersBtns[i].setFont(new Font("Comic Sans MS", 30));
             charactersBtns[i].setTextFill(Color.CYAN);
-            //addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
+
 
             //set the button event
             int finalI = i;
@@ -484,16 +507,11 @@ public class HelloApplication extends Application {
 
     // Establishing The Scene of Info (Switched by Info Bt)
     private void setInfoScene() {
-        Text txt1 = new Text("this mission has been done.");
-        txt1.setFont(Font.font(30));
-        txt1.setFill(Color.rgb(125, 154, 169));
-        txt1.setStyle("-fx-font-family: 'Copperplate Gothic Bold'");
-        txt1.setLayoutX(20);
-        txt1.setLayoutY(35);
+        Pane infoPane = new Pane();
 
         Button backBtn = new Button("Back");
         backBtn.setBackground(Background.EMPTY);
-        backBtn.setLayoutX(410);
+        backBtn.setLayoutX(700);
         backBtn.setLayoutY(600);
         backBtn.setFont(Font.font(35));
         backBtn.setTextFill(Color.DARKMAGENTA);
@@ -507,18 +525,53 @@ public class HelloApplication extends Application {
             }
         });
         addButtonEffect(backBtn, Color.DARKMAGENTA, Color.rgb(139, 139, 139));
-
-
-        ImageView infoBackground = new ImageView("infoBackground.jpg");
+        // Background
+        ImageView infoBackground = new ImageView("InfoBaackground.jpg");
         infoBackground.setFitWidth(900);
         infoBackground.setFitHeight(700);
-        Pane pane = new Pane(infoBackground, txt1, backBtn);
+        infoPane.getChildren().addAll(infoBackground, backBtn);
 
-        infoScene = new Scene(pane, 900, 700);
+        // Members Nodes
+        String[] membersStrs = {"Mahmoud El-Baz", "Abdelrahman El-Hussainy","Omar Tartour", "Osman El-Kinani",
+                "Mahmoud Gamal","Mahmoud Hamdy", "Mazen Mohammed", "Ibrahim Ayman","Mohammed Wagih","Abdallah Mohamed"};
+        Text[] membersTxt = new Text[10];
+        ImageView[] membersQrs = {new ImageView("ElbazQr.jpg"), new ImageView("HussainyQr.jpg"),new ImageView("OmarQr.jpg"),
+                new ImageView("OsmanQr.jpg"),new ImageView("HablassQr.jpg"),new ImageView("HamdyQr.jpg"),new ImageView("MazenQr.jpg")
+                ,new ImageView("IbrahimQr.jpg"),new ImageView("WagihQr.jpg"),new ImageView("AbdallahQr.jpg")};
+        for(int i = 0; i < 10; i++){
+            membersTxt[i] = new Text(membersStrs[i]);
+            membersTxt[i].setFont(Font.font("Garamond", FontWeight.NORMAL, FontPosture.REGULAR, 34));
+            membersTxt[i].setFill(Color.web("#ffffff"));
+            membersTxt[i].setStroke(Color.GRAY);
+            membersTxt[i].setStrokeWidth(.2);
+            membersTxt[i].setX(90);
+            membersTxt[i].setY(52+68*i);
+            membersQrs[i].setFitWidth(57);
+            membersQrs[i].setFitHeight(57);
+            membersQrs[i].setX(20);
+            membersQrs[i].setY(20+68*i);
+            infoPane.getChildren().addAll(membersTxt[i], membersQrs[i]);
+        }
+        // Qr - Text of GitHub
+        ImageView githubQr = new ImageView("GithubQr.png");
+        githubQr.setFitWidth(350);
+        githubQr.setFitHeight(350);
+        githubQr.setX(475);
+        githubQr.setY(80);
+        infoPane.getChildren().add(githubQr);
+
+        Text githubTxt = new Text("Unlock The Project's Code \nBy Scanning This QR Code!\n" +
+                                    "Dive Into The Heart of Our\nProject's Implementation");
+        githubTxt.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, FontPosture.REGULAR, 30));
+        githubTxt.setFill(Color.web("#ffd700"));
+        githubTxt.setStroke(Color.BLACK);
+        githubTxt.setStrokeWidth(.4);
+        githubTxt.setX(465);
+        githubTxt.setY(490);
+        infoPane.getChildren().add(githubTxt);
+
+        infoScene = new Scene(infoPane, 900, 700);
     }
-
-    /*--------------------------------------------------------------------*/
-
 
     /*----------------Helper Methods (Generic)--------------------*/
 
