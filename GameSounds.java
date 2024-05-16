@@ -12,7 +12,7 @@ import javafx.scene.text.Text;
 
 import java.io.File;
 
-public class GameSounds extends Pane {
+public class GameSounds {
 
 
     MediaPlayer start_sound;
