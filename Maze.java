@@ -125,7 +125,7 @@ public class Maze {
     }
     public void setEmptySpace(int row,int column){grid[row][column] = Cell.EMPTY_SPACE;}
 
-    /*------------------Checking Methods-----------------*/
+    /------------------Checking Methods-----------------/
     public boolean isWall(int x, int y) {
         return grid[x][y] == Cell.WALL;
     }
@@ -140,9 +140,9 @@ public class Maze {
     public boolean isFinishedMap(){
         return pellets == 0;
     }
-    /*---------------------------------------------------*/
+    /---------------------------------------------------/
 
-    /*-----------------Setters / Getters-----------------*/
+    /-----------------Setters / Getters-----------------/
     public int getRows() {return ROWS;}
     public int getMazeNum() {return mazeNum;}
     public int getCols() {return COLS;}
@@ -151,7 +151,7 @@ public class Maze {
     public int[][] getOutGates() {return outGates;}
     public Direction[] getOutGateDirection() {return outGateDirection;}
     public void setPellets(int pellets) {this.pellets = pellets;}
-    /*---------------------------------------------------*/
+    /---------------------------------------------------/
 
     //-------------------------------------------------Danger Area------------------------------------------/
     //Directed Ghost Helper Methods.
