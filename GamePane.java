@@ -1,57 +1,45 @@
-package com.example.pacman;
+package com.example.pac_man;
 
 import javafx.animation.*;
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class gamePane extends Pane {
+public class GamePane extends Pane {
     public static final int CELL_SIZE = 40;
     public static final int BOARD_WIDTH = 760;
     public static final int BOARD_HEIGHT = 760;
-    MazeView mazeView;
-    int mapNumber;
-    PacMan pacman ;
+    private MazeView mazeView;
+    private PacMan pacman ;
     GameSounds sound ;
-    int level ;
-    Ghost[] ghosts;
-    int pacmanGifNum ;
-    Scene gameScene;
+    private final Ghost[] ghosts;
     boolean death = false;   // to know pacman is still alive or die
-    boolean win = false;      // to know if user win
-    Stage stage ;
-    Scene mainScene;
+    private boolean win = false;      // to know if user win
+    private Stage stage ;
+    private Scene mainScene;
+    private Scene gameScene;
     private Timeline positionChecker;
 
-    public gamePane( int mapNumber, GameSounds sound , int level, int pacmanGifNum,Stage stage,Scene mainScene ) {
-        this.mapNumber = mapNumber;
+    public GamePane( int mapNumber, GameSounds sound , int level, int pacmanGifNum,Stage stage,Scene mainScene ) {
         this.sound = sound;
-        this.level = level;
         this.stage = stage;
         this.mainScene = mainScene;
-        this.pacmanGifNum = pacmanGifNum;
+
         mazeView = new MazeView(new Maze(BOARD_WIDTH, BOARD_HEIGHT, CELL_SIZE, mapNumber));
         pacman = new PacMan(1, 1, mazeView, pacmanGifNum);
         ghosts = createGhosts(mazeView, level);
-        ImageView background = createBackground(BOARD_WIDTH, BOARD_HEIGHT, mapNumber);
-        getChildren().addAll(background, mazeView);
-        gameScene = new Scene(this, BOARD_WIDTH, BOARD_HEIGHT);
-        movePacman(gameScene, pacman);
-        checkLife(pacman, ghosts);
+        getChildren().addAll(createBackground(BOARD_WIDTH,BOARD_HEIGHT,mapNumber),mazeView);
+        gameScene = new Scene(this,BOARD_WIDTH,BOARD_HEIGHT);
+
+        movePacman();
+        checkLife();
 
     }
+
 
     // Creating Game Background
     private ImageView createBackground(double width, double height, int mazeNum) {
@@ -87,12 +75,12 @@ public class gamePane extends Pane {
         return ghosts;
     }
     // Checking pacman's Life (Timeline)
-    private void checkLife(PacMan pacman, Ghost[] ghosts) {
+    private void checkLife() {
         death = false;
         win = false;
         sound.deathSound.stop();
         sound.winSound.stop();
-        positionChecker = new Timeline(new KeyFrame(Duration.millis(50), e -> {
+        positionChecker = new Timeline(new KeyFrame(Duration.millis(40), e -> {
             for (Ghost ghost : ghosts) {
                 if (ghost.getCurrentColumn() == pacman.getCurrentColumn() && ghost.getCurrentRow() == pacman.getCurrentRow()) {
                     death = true;
@@ -107,7 +95,7 @@ public class gamePane extends Pane {
         positionChecker.play();
     }
     // Responsible for moving the pacman (Timeline)
-    public void movePacman(Scene gameScene, PacMan pacman) {
+    public void movePacman() {
         gameScene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case RIGHT:
@@ -124,6 +112,7 @@ public class gamePane extends Pane {
                     break;
             }
         });
+
         pacman.getAutoMovement().setCycleCount(-1);
         pacman.getAutoMovement().play();
     }
@@ -163,7 +152,7 @@ public class gamePane extends Pane {
         }
     }
 
-    // Setting Winning Screen With All Effects Related.
+    // Set Winning Screen With All Effects Related.
     private void handleGameWin(ImageView[] endingImgs, Text[] endGameTexts, FadeTransition[] txtsFadeTransition,
                                StrokeTransition[] txtsStrokeTransition, ScaleTransition[] imgsTransition) {
         pacman.getAutoMovement().stop();
@@ -204,7 +193,7 @@ public class gamePane extends Pane {
 
     // Setting Game Over Screen With All Effects Related.
     private void handleGameOver( ImageView[] endingImgs, Text[] endGameTexts, FadeTransition[] txtsFadeTransition,
-                                StrokeTransition[] txtsStrokeTransition, ScaleTransition[] imgsTransition) {
+                                 StrokeTransition[] txtsStrokeTransition, ScaleTransition[] imgsTransition) {
         sound.deathSound.play();
         death = false;
 
@@ -283,4 +272,5 @@ public class gamePane extends Pane {
         txtsStrokeTransition[2].setFromValue(Color.LIGHTGOLDENRODYELLOW);
         return endGameTexts;
     }
+
 }
