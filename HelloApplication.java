@@ -1,6 +1,9 @@
-package org.example.gamedemo;
+package com.example.pac_man;
 
-import javafx.animation.*;
+import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.StrokeTransition;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,22 +28,18 @@ public class HelloApplication extends Application {
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
     int level = 1;
-    private Ghost[] ghosts;
-    private PacMan pacman;
-    private MazeView mazeView;
-    private GameSounds sound;
     private MediaPlayer introPlayer;
+    private boolean introFinished = false;
+    private GameSounds sound;
     private static Stage stage;
     private Scene mainScene;
     private Scene charactersScene;
     private Scene mapsScene;
     private Scene infoScene;
     private Scene levelScene;
-    private boolean introFinished = false;
     private int mapNumber = 1;
     private Button[] mainMenueBtns;
     int pacmanGifNum = 1;
-    GamePane gamepane;
 
     @Override
     public void start(Stage primaryStage) {
@@ -49,21 +48,24 @@ public class HelloApplication extends Application {
 
         // create object to control sound effects
         sound = new GameSounds();
-        //sound.start_sound.play();
+//        sound.start_sound.play();
 
-        //Main Menu
+
+
+        //main menu
         setMainScene();
 
         //Characters Menu
         setCharactersScene();
 
-        //Info Scene
+        //INFO scene
         setInfoScene();
 
-        //Level Scene
+
+        //level scene
         setLevelScene();
 
-        //Maps Menu
+        //maps menu
         setMapScene();
 
         primaryStage.setScene(mainScene);
@@ -78,11 +80,12 @@ public class HelloApplication extends Application {
     // Establishing the Scene of Main Menu
     public void setMainScene() {
         Pane mainMenuPane = new Pane();
+
         //set the main menu scene
         mainScene = new Scene(mainMenuPane, BOARD_WIDTH / 1.15, BOARD_HEIGHT / 1.25);
 
         // Set Intro Video
-        introPlayer = new MediaPlayer(new Media(new File("D:/Resources/Sounds/Intro.mp4").toURI().toString()));
+        introPlayer = new MediaPlayer(new Media(new File("C:\\Users\\MAHMOUD ELBAZ\\Documents\\java projects\\new_era\\Pac_Man\\src\\main\\resources\\Intro.mp4").toURI().toString()));
         MediaView introView = new MediaView(introPlayer);
         introView.setFitWidth(BOARD_WIDTH/ 1.14);
         introView.setFitHeight(BOARD_HEIGHT/ 1.1); // Trial & Error Value
@@ -184,7 +187,7 @@ public class HelloApplication extends Application {
         buttonsPane.setLayoutY(352);
 
         mainMenueBtns = new Button[5];
-        String[] btnsText = {"Play", "CHARACTERS", "MAPS", "LEVEL", "INFO"};
+        String[] btnsText = {"Play", "CHARACTERS", "MAPS", "INFO","LEVEL"};
 
         for (int i = 0; i < 5; i++) {
             //styling
@@ -222,8 +225,8 @@ public class HelloApplication extends Application {
 
         // Navigation
         mainMenueBtns[0].setOnAction(e -> {
-            gamepane = new GamePane(mapNumber,sound,level,pacmanGifNum,stage,mainScene);
-            stage.setScene(gamepane.gameScene);
+            System.gc();
+            stage.setScene(new GamePane(mapNumber,sound,level,pacmanGifNum,stage,mainScene).getScene());
             sound.start_sound.stop();
         });
         mainMenueBtns[1].setOnAction(e -> {
@@ -235,15 +238,16 @@ public class HelloApplication extends Application {
             sound.start_sound.stop();
         });
         mainMenueBtns[3].setOnAction(e -> {
-            stage.setScene(levelScene);
+            stage.setScene(infoScene);
             sound.start_sound.stop();
         });
         mainMenueBtns[4].setOnAction(e -> {
-            stage.setScene(infoScene);
+            stage.setScene(levelScene);
             sound.start_sound.stop();
         });
         return buttonsPane;
     }
+
 
     /*---------------------------------------------------*/
 
@@ -287,7 +291,7 @@ public class HelloApplication extends Application {
             charactersBtns[i].setStyle("-fx-background-color: transparent;");
             charactersBtns[i].setFont(new Font("Comic Sans MS", 30));
             charactersBtns[i].setTextFill(Color.CYAN);
-
+            //addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
 
             //set the button event
             int finalI = i;
