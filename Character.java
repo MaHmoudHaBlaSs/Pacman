@@ -21,20 +21,16 @@ public class Character extends Pane {
     int counter = 0;
     protected Direction direction;
 
-    public Character(){
-        setMoverTl();
-        setPositionTl();
-    }
-
-    private void setMoverTl(){
-        // moverTl  Changes Character Gif Position Every 10ms by 2 Pixels For The Cycle
+    public Character(){        
+        // moverTl  Changes Character Gif Position Every 10.1ms by 2 Pixels For The Cycle
         // So It Should be Played For 20 Times to Reach 40 Pixels(CELL_WIDTH) [Changes currentRow - currentColumn]
-        moverTl =  new Timeline(new KeyFrame(Duration.millis(10), e-> move(dx,dy)));
+        moverTl =  new Timeline(new KeyFrame(Duration.millis(10.1), e-> move(dx,dy)));
         moverTl.setCycleCount(CELL_SIZE/2);
-        moverTl.setOnFinished(e->{
+        moverTl.setOnFinished( e->{
             counter =0;
         });
     }
+
     private void move(double dx , double dy){
         gif.setY(gif.getY() + dy * 2);
         gif.setX(gif.getX() + dx * 2);
@@ -45,15 +41,7 @@ public class Character extends Pane {
             currentColumn = nextColumn;
         }
     }
-    private void setPositionTl(){
-        // positionTl Changes Character Gif Coordinates Through a Certain Amount of Time (190ms)
-        // [Doesn't Change currentRow - currentColumn]
-        positionTl = new Timeline(new KeyFrame(Duration.millis(250), e->{
-            gif.setX(currentColumn*CELL_SIZE +5);
-            gif.setY(currentRow*CELL_SIZE);}
-        ));
-        positionTl.setCycleCount(1);
-    }
+
     protected void setPosition(int row,int col){
         // Difference in Coordinates [Index]
         dx = col-currentColumn ;
@@ -65,7 +53,9 @@ public class Character extends Pane {
 
         moverTl.play();
     }
-    protected void setPosition(){positionTl.play();}
+    protected void setPosition(){        
+        gif.setX(currentColumn*CELL_SIZE+2);
+        gif.setY(currentRow*CELL_SIZE);}
 
     /*-------------Gif Orientation Methods---------------*/
     public void reflectVerticallyToLeft() {
