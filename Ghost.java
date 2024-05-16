@@ -1,4 +1,4 @@
-package org.example.gamedemo;
+package com.example.pac_man;
 
 
 import javafx.animation.Animation;
@@ -15,7 +15,6 @@ public class Ghost extends Character {
     private Maze maze;
     private PacMan pacMan ;
     protected Timeline ghostMovement;
-    //    private Direction direction;
     private int mode = 1;
     private int moves =0;
     private int counter =0;
@@ -195,7 +194,7 @@ public class Ghost extends Character {
         direction = Direction.DOWN;
     }
 
-    /*-----------------------------------------------------------------------------------*/
+    /*----------------------------------------------------------------------------------------------------------------*/
     private void setPath(){
         //start: ghost location , end: pacMan location
         int start = maze.indicesToCell(this.currentRow,this.currentColumn);
@@ -221,10 +220,6 @@ public class Ghost extends Character {
         }
         counter++;
     }
-    @Override
-    protected void setPosition(){
-        this.getGif().setX(currentColumn*CELL_SIZE);
-        this.getGif().setY(currentRow*CELL_SIZE);
-    }
+
 
 }
