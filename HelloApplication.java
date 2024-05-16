@@ -1,7 +1,5 @@
 package org.example.gamedemo;
 
-
-
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -11,12 +9,16 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.io.File;
 
 public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
@@ -27,16 +29,18 @@ public class HelloApplication extends Application {
     private PacMan pacman;
     private MazeView mazeView;
     private GameSounds sound;
+    private MediaPlayer introPlayer;
     private static Stage stage;
     private Scene mainScene;
     private Scene charactersScene;
     private Scene mapsScene;
     private Scene infoScene;
     private Scene levelScene;
+    private boolean introFinished = false;
     private int mapNumber = 1;
     private Button[] mainMenueBtns;
     int pacmanGifNum = 1;
-    gamePane gamepane;
+    GamePane gamepane;
 
     @Override
     public void start(Stage primaryStage) {
@@ -47,22 +51,19 @@ public class HelloApplication extends Application {
         sound = new GameSounds();
         sound.start_sound.play();
 
-
-
-        //main menu
+        //Main Menu
         setMainScene();
 
         //Characters Menu
         setCharactersScene();
 
-        //INFO scene
+        //Info Scene
         setInfoScene();
 
-
-        //level scene
+        //Level Scene
         setLevelScene();
 
-        //maps menu
+        //Maps Menu
         setMapScene();
 
         primaryStage.setScene(mainScene);
@@ -76,19 +77,99 @@ public class HelloApplication extends Application {
 
     // Establishing the Scene of Main Menu
     public void setMainScene() {
-
-        //set background
-        ImageView mainImageView = new ImageView("mainMenuPic.jpg");
-        mainImageView.setFitWidth(BOARD_WIDTH / 1.15);
-        mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
-
-        //set the buttons
         Pane mainMenuPane = new Pane();
-        Pane btnsPane = mainMenuBtnsPane();
-        mainMenuPane.getChildren().addAll(mainImageView, btnsPane);
-
         //set the main menu scene
         mainScene = new Scene(mainMenuPane, BOARD_WIDTH / 1.15, BOARD_HEIGHT / 1.25);
+
+        // Set Intro Video
+        introPlayer = new MediaPlayer(new Media(new File("D:/Resources/Sounds/Intro.mp4").toURI().toString()));
+        MediaView introView = new MediaView(introPlayer);
+        introView.setFitWidth(BOARD_WIDTH/ 1.14);
+        introView.setFitHeight(BOARD_HEIGHT/ 1.1); // Trial & Error Value
+        introPlayer.play();
+
+        String[] introStrs = {"CSE-27-JavaNewbies", "Present", "Press \"Enter\" To Skip"};
+        Text[] introTxts = new Text[3];
+        FadeTransition[] txtFd = new FadeTransition[3];
+        StrokeTransition[] txtSt = new StrokeTransition[3];
+
+        for(int i = 0; i < 3; i++){
+            introTxts[i] = new Text(introStrs[i]);
+            introTxts[i].setFont(Font.font("Garamond", FontWeight.NORMAL, FontPosture.REGULAR, 30));
+            introTxts[i].setFill(Color.WHITE);
+            introTxts[i].setOpacity(0);
+            txtFd[i] = new FadeTransition(Duration.seconds(2), introTxts[i]);
+            txtFd[i].setFromValue(0);
+            txtFd[i].setToValue(1);
+            txtFd[i].setCycleCount(1);
+            txtSt[i] = new StrokeTransition(Duration.seconds(2), introTxts[i]);
+            txtSt[i].setFromValue(Color.TRANSPARENT);
+            txtSt[i].setToValue(Color.web("#c0c0c0"));
+            txtSt[i].setCycleCount(-1);
+            txtSt[i].setAutoReverse(true);
+        }
+        introTxts[0].setX(205);
+        introTxts[0].setY(50);
+        introTxts[1].setX(290);
+        introTxts[1].setY(110);
+        introTxts[2].setX(195);
+        introTxts[2].setY(565);
+        mainMenuPane.getChildren().addAll(introView, introTxts[0], introTxts[1], introTxts[2]);
+
+        Timeline txtTl = new Timeline(new KeyFrame(Duration.seconds(6), event ->{
+            for (int i = 0; i < 3; i++){
+                txtFd[i].play();
+                txtSt[i].play();
+            }
+        }));
+        txtTl.setCycleCount(1);
+        txtTl.play();
+
+        Timeline introTl = new Timeline(new KeyFrame(Duration.seconds(27), event ->{
+            for(int i = 0; i < 3; i++){
+                txtFd[i].stop();
+                txtSt[i].stop();
+            }
+            introPlayer.stop();
+            mainMenuPane.getChildren().clear();
+            introFinished = true;
+        }));
+        introTl.setOnFinished(event -> {
+            //set background
+            ImageView mainImageView = new ImageView("mainMenuPic.jpg");
+            mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
+            mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
+
+            //set the buttons
+            Pane btnsPane = mainMenuBtnsPane();
+            mainMenuPane.getChildren().addAll(mainImageView, btnsPane);
+        });
+        introTl.setCycleCount(1);
+        introTl.play();
+
+        mainScene.setOnKeyPressed(keyEvent -> {
+            switch (keyEvent.getCode()) {
+                case ENTER -> {
+                    if(!introFinished){
+                        for(int i = 0; i < 3; i++){
+                            txtFd[i].stop();
+                            txtSt[i].stop();
+                        }
+                        introPlayer.stop();
+                        mainMenuPane.getChildren().clear();
+                        //set background
+                        ImageView mainImageView = new ImageView("mainMenuPic.jpg");
+                        mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
+                        mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
+
+                        //set the buttons
+                        Pane btnsPane = mainMenuBtnsPane();
+                        mainMenuPane.getChildren().addAll(mainImageView, btnsPane);
+                        introFinished = true;
+                    }
+                }
+            }
+        });
     }
 
     /*----------Main Menu Establishing Methods----------*/
@@ -103,7 +184,7 @@ public class HelloApplication extends Application {
         buttonsPane.setLayoutY(352);
 
         mainMenueBtns = new Button[5];
-        String[] btnsText = {"Play", "CHARACTERS", "MAPS", "INFO","LEVEL"};
+        String[] btnsText = {"Play", "CHARACTERS", "MAPS", "LEVEL", "INFO"};
 
         for (int i = 0; i < 5; i++) {
             //styling
@@ -132,7 +213,6 @@ public class HelloApplication extends Application {
             });
             mainMenueBtns[i].setOnMouseExited(e -> {
                 mainMenueBtns[finalI].setTextFill(Color.DARKTURQUOISE);
-                //////////////
                 mainMenueBtns[finalI].setStyle("-fx-background-color:black; -fx-border-color:snow; -fx-border-width: 0.5;");
                 mainMenueBtns[finalI].setPrefSize(200, 30);
             });
@@ -142,7 +222,7 @@ public class HelloApplication extends Application {
 
         // Navigation
         mainMenueBtns[0].setOnAction(e -> {
-            gamepane = new gamePane(mapNumber,sound,level,pacmanGifNum,stage,mainScene);
+            gamepane = new GamePane(mapNumber,sound,level,pacmanGifNum,stage,mainScene);
             stage.setScene(gamepane.gameScene);
             sound.start_sound.stop();
         });
@@ -155,17 +235,15 @@ public class HelloApplication extends Application {
             sound.start_sound.stop();
         });
         mainMenueBtns[3].setOnAction(e -> {
-            stage.setScene(infoScene);
+            stage.setScene(levelScene);
             sound.start_sound.stop();
         });
         mainMenueBtns[4].setOnAction(e -> {
-            stage.setScene(levelScene);
+            stage.setScene(infoScene);
             sound.start_sound.stop();
         });
         return buttonsPane;
     }
-
-
 
     /*---------------------------------------------------*/
 
@@ -209,7 +287,7 @@ public class HelloApplication extends Application {
             charactersBtns[i].setStyle("-fx-background-color: transparent;");
             charactersBtns[i].setFont(new Font("Comic Sans MS", 30));
             charactersBtns[i].setTextFill(Color.CYAN);
-            //addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
+
 
             //set the button event
             int finalI = i;
@@ -456,7 +534,7 @@ public class HelloApplication extends Application {
         });
     }
 
-       public void setLevelScene(){
+    public void setLevelScene(){
 
         //set background
         ImageView LevelImageView = new ImageView("levelPic.jpg" );
