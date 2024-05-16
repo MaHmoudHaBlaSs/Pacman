@@ -24,7 +24,7 @@ public class HelloApplication extends Application {
     private static final int CELL_SIZE = 40;
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
-    int level = 1;
+    private int level = 1;
     private Ghost[] ghosts;
     private PacMan pacman;
     private MazeView mazeView;
@@ -40,7 +40,6 @@ public class HelloApplication extends Application {
     private int mapNumber = 1;
     private Button[] mainMenueBtns;
     int pacmanGifNum = 1;
-    GamePane gamepane;
 
     @Override
     public void start(Stage primaryStage) {
@@ -222,8 +221,7 @@ public class HelloApplication extends Application {
 
         // Navigation
         mainMenueBtns[0].setOnAction(e -> {
-            gamepane = new GamePane(mapNumber,sound,level,pacmanGifNum,stage,mainScene);
-            stage.setScene(gamepane.gameScene);
+            stage.setScene(new GamePane(mapNumber,sound,level,pacmanGifNum,stage,mainScene).getScene());
             sound.start_sound.stop();
         });
         mainMenueBtns[1].setOnAction(e -> {
