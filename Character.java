@@ -29,13 +29,13 @@ public class Character extends Pane {
     private void setMoverTl(){
         // moverTl  Changes Character Gif Position Every 10ms by 2 Pixels For The Cycle
         // So It Should be Played For 20 Times to Reach 40 Pixels(CELL_WIDTH) [Changes currentRow - currentColumn]
-        moverTl =  new Timeline(new KeyFrame(Duration.millis(10), e-> move(dx,dy)));
+        moverTl =  new Timeline(new KeyFrame(Duration.millis(10), e-> move()));
         moverTl.setCycleCount(CELL_SIZE/2);
         moverTl.setOnFinished(e->{
             counter =0;
         });
     }
-    private void move(double dx , double dy){
+    private void move(){
         gif.setY(gif.getY() + dy * 2);
         gif.setX(gif.getX() + dx * 2);
         counter++;
