@@ -1,8 +1,5 @@
 package org.example.gamedemo;
 
-
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -11,16 +8,13 @@ import javafx.scene.shape.Circle;
 
 public class MazeView extends Pane{
     private static final int CELL_SIZE = 40; // Controls the screen Dimensions (be Careful)
-    private Maze maze;
-    private String[] gatesUrls = {"Gate1.gif","Gate2.gif"};
+    private final Maze maze;
+    private final String[] gatesUrls = {"Gate1.gif","Gate2.gif"};
     public MazeView(Maze maze) {
         this.maze = maze;
-
         drawMaze(maze.getMazeNum());
     }
-    public Maze getMaze(){
-        return maze;
-    }
+    public Maze getMaze(){return maze;}
     private void drawMaze(int mazeNum) {
         int rows = maze.getRows();
         int cols = maze.getCols();
@@ -72,7 +66,7 @@ public class MazeView extends Pane{
                 else if (maze.isPellet(i, j))
                 {
                     //Coordinates : X(Rows*Width+.5*CELL) -> Center of the Cell....               Radius
-                    Circle pellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, 6);
+                    Circle pellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2., i * CELL_SIZE + CELL_SIZE / 2., 6);
                     pellet.setFill(Color.YELLOW); // Adjust pellet color
                     pellet.setStroke(Color.BLACK);
                     pellet.setStrokeWidth(1);
@@ -81,7 +75,7 @@ public class MazeView extends Pane{
                 else if (maze.isPowerPellet(i, j))
                 {
                     // Same as pellet but with larger Radius
-                    Circle powerPellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2, 9);
+                    Circle powerPellet = new Circle(j * CELL_SIZE + CELL_SIZE / 2., i * CELL_SIZE + CELL_SIZE / 2., 9);
                     powerPellet.setFill(Color.ORANGE); // Adjust power pellet color
                     powerPellet.setStrokeWidth(1.3);
                     powerPellet.setStroke(Color.RED);
