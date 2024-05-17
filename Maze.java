@@ -6,27 +6,23 @@ public class Maze {
     private enum Cell {
         EMPTY_SPACE, WALL, PELLET, POWER_PELLET, GATE_IN, GATE_OUT
     }
-
     Cell[][] grid;
+    private final Direction[] outGateDirection = new Direction[2]; // For The Direction When Exiting an OutGate [Right - Left]
     private boolean[][] adjMatrix;//to Represent a graph
     private final int ROWS ;
     private final int COLS;
-    private int mazeNum;
+    private final int mazeNum;
+    private final int[][] inGates = new int[2][2]; // Array of In Gate Indices
+    private final int[][] outGates = new int[2][3];; // Array of Out Gate Indices
     private int pellets = 0; // 4 Power Pellets in Any Map
-    protected int[][] inGates = new int[2][2]; // Array of In Gate Indices
-    protected int[][] outGates = new int[2][3];; // Array of Out Gate Indices
-    private Direction[] outGateDirection = new Direction[2]; // For The Direction When Exiting an OutGate [Right - Left]
-
 
     public Maze(int width, int height , int cellSize, int mazeNum) {
-        ROWS = height/cellSize;
-        COLS = width/cellSize;
+        ROWS = height/cellSize; // 19
+        COLS = width/cellSize;  // 19
         this.mazeNum = mazeNum;
         grid = new Cell[ROWS][COLS];
         generateMaze(mazeNum);
     }
-
-
 
     private void generateMaze(int mazeNum) {
         // Generate Maze Layout [Outer Edges] With Walls
@@ -63,7 +59,7 @@ public class Maze {
             }
         }
         int[] middle= {1,3,7,17,15,11};
-        for(int i=0;i<middle.length;i++){grid[9][middle[i]] = Cell.WALL;}
+        for (int j : middle) {grid[9][j] = Cell.WALL;}
 
         switch (mazeNum){
             case 1:
@@ -116,7 +112,6 @@ public class Maze {
                 }
             }
         }
-
         // Place power pellets at specific locations (e.g., corners)
         grid[1][1] = Cell.POWER_PELLET;
         grid[1][COLS - 2] = Cell.POWER_PELLET;
@@ -125,7 +120,7 @@ public class Maze {
     }
     public void setEmptySpace(int row,int column){grid[row][column] = Cell.EMPTY_SPACE;}
 
-    /------------------Checking Methods-----------------/
+    /*------------------Checking Methods-----------------*/
     public boolean isWall(int x, int y) {
         return grid[x][y] == Cell.WALL;
     }
@@ -140,9 +135,9 @@ public class Maze {
     public boolean isFinishedMap(){
         return pellets == 0;
     }
-    /---------------------------------------------------/
+    /*---------------------------------------------------*/
 
-    /-----------------Setters / Getters-----------------/
+    /*-----------------Setters / Getters-----------------*/
     public int getRows() {return ROWS;}
     public int getMazeNum() {return mazeNum;}
     public int getCols() {return COLS;}
@@ -151,9 +146,9 @@ public class Maze {
     public int[][] getOutGates() {return outGates;}
     public Direction[] getOutGateDirection() {return outGateDirection;}
     public void setPellets(int pellets) {this.pellets = pellets;}
-    /---------------------------------------------------/
+    /*---------------------------------------------------*/
 
-    //-------------------------------------------------Danger Area------------------------------------------/
+    //------------------------------Danger Area------------------------------//
     //Directed Ghost Helper Methods.
     public int indicesToCell(int row,int column){
         return row*ROWS + column;
