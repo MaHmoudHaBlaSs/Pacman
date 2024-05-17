@@ -10,10 +10,12 @@ import javafx.util.Duration;
 
 
 public class PacMan extends Character {
-    private Maze maze ;
-    protected MazeView mazeView;
-    private int score = 0;
-    private Timeline autoMovement;
+    private final Maze maze;
+    private final MazeView mazeView;
+    private final Timeline autoMovement;
+    private Timeline positionTl;
+    private int score = 0; // Needs To be Implemented
+
     // Object to Control Sound Effects
     GameSounds sound = new GameSounds();
     public PacMan(int startingI, int startingJ, MazeView mazeView, int gifNumber){
@@ -26,16 +28,16 @@ public class PacMan extends Character {
         // Create the Pacman Gif (As Chosen)
         ImageView gif = switch(gifNumber){
             case 1 -> new ImageView("PacmanEye.gif");
-            case 2 -> new ImageView("pacboy.gif");
-            case 3 -> new ImageView("pacwoman.gif");
+            case 2 -> new ImageView("Pacwoman.gif");
+            case 3 -> new ImageView("Pacboy.gif");
             default -> null;
         };
         this.getChildren().add(gif); // Pacman Extends Character Which Extends Pane
         mazeView.getChildren().add(this); // Now The Gif Is a Child of Pacman and The Pacman Itself Is a Child of MazeView
         setGif(gif);
 
-        // Set the initial position
-        setPosition(); // Internally Plays 'positionTl' Timeline
+        setPositionTl(); // Set 'positionTl'
+        setPosition(); // Internally Plays 'positionTl' Timeline [Set the initial position]
 
         // Set The Size (Adjust as Needed)
         gif.setFitWidth(CELL_SIZE-10);
@@ -89,7 +91,22 @@ public class PacMan extends Character {
             updateScore();
         }
     }
-    /*--------------------------------------------------*/
+
+    /*-----------------Setters / Getters-----------------*/
+    public Timeline getAutoMovement() {return autoMovement;}
+    public MazeView getMazeView() {return mazeView;}
+
+    /*----------------Helper Methods---------------------*/
+    private void setPositionTl(){
+        // positionTl Changes Character Gif Coordinates Through a Certain Amount of Time (190ms)
+        // [Doesn't Change currentRow - currentColumn]
+        positionTl = new Timeline(new KeyFrame(Duration.millis(250), e->{
+            getGif().setX(currentColumn*CELL_SIZE +5);
+            getGif().setY(currentRow*CELL_SIZE);}
+        ));
+        positionTl.setCycleCount(1);
+    }
+    private void setPosition(){positionTl.play();}
     private void updateScore(){
         if(maze.isPellet(nextRow,nextColumn)) {
             score += 10;
@@ -128,10 +145,4 @@ public class PacMan extends Character {
             }
         }
     }
-
-    /*-----------------Setters / Getters-----------------*/
-    public Timeline getAutoMovement() {return autoMovement;}
-    public MazeView getMazeView() {return mazeView;}
-    /*---------------------------------------------------*/
-
 }
