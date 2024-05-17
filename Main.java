@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -19,32 +20,27 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.util.Objects;
 
-public class HelloApplication extends Application {
-    private static final int CELL_SIZE = 40;
+public class Main extends Application {
     private static final int BOARD_WIDTH = 760;
     private static final int BOARD_HEIGHT = 760;
-    int level = 1;
-    private Ghost[] ghosts;
-    private PacMan pacman;
-    private MazeView mazeView;
-    private GameSounds sound;
-    private MediaPlayer introPlayer;
     private static Stage stage;
     private Scene mainScene;
     private Scene charactersScene;
     private Scene mapsScene;
     private Scene infoScene;
     private Scene levelScene;
+    private GameSounds sound;
+    private MediaPlayer introPlayer;
+    private Button[] mainMenuBtns;
+    private int level = 1;
     private boolean introFinished = false;
     private int mapNumber = 1;
-    private Button[] mainMenueBtns;
-    int pacmanGifNum = 1;
-    GamePane gamepane;
+    private int pacmanGifNum = 1;
 
     @Override
     public void start(Stage primaryStage) {
-
         stage = primaryStage;
 
         // create object to control sound effects
@@ -67,15 +63,15 @@ public class HelloApplication extends Application {
 
         primaryStage.setScene(mainScene);
         primaryStage.setTitle("Pac-Man Game");
-        primaryStage.getIcons().add(new Image("GameIcon.jpg"));
+        primaryStage.getIcons().add(new Image("GameIcon.png"));
         primaryStage.show();
         primaryStage.setResizable(false);
     }
 
-    /*--------------------------Establishing Scenes-----------------------*/
+    /*------------------Establishing Scenes------------------*/
 
     // Establishing the Scene of Main Menu
-    public void setMainScene() {
+    private void setMainScene() {
         Pane mainMenuPane = new Pane();
 
         //set the main menu scene
@@ -112,12 +108,10 @@ public class HelloApplication extends Application {
             txtSt[i].setCycleCount(-1);
             txtSt[i].setAutoReverse(true);
         }
-        introTxts[0].setX(205);
-        introTxts[0].setY(50);
-        introTxts[1].setX(290);
-        introTxts[1].setY(110);
-        introTxts[2].setX(195);
-        introTxts[2].setY(565);
+        setTxtPosition(introTxts[0], 205, 50);
+        setTxtPosition(introTxts[1], 290, 110);
+        setTxtPosition(introTxts[2], 195, 565);
+
         mainMenuPane.getChildren().addAll(introView, introTxts[0], introTxts[1], introTxts[2]);
 
         Timeline txtTl = new Timeline(new KeyFrame(Duration.seconds(6), event ->{
@@ -154,34 +148,32 @@ public class HelloApplication extends Application {
         introTl.play();
 
         mainScene.setOnKeyPressed(keyEvent -> {
-            switch (keyEvent.getCode()) {
-                case ENTER -> {
-                    if(!introFinished){
-                        for(int i = 0; i < 3; i++){
-                            txtFd[i].stop();
-                            txtSt[i].stop();
-                        }
-                        introPlayer.stop();
-                        mainMenuPane.getChildren().clear();
-
-                        // Set Background
-                        ImageView mainImageView = new ImageView("mainMenuPic.jpg");
-                        mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
-                        mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
-
-                        // Set The Panes
-                        Pane btnsPane = mainMenuBtnsPane();
-                        Pane palestinePane = palestinePane();
-                        mainMenuPane.getChildren().addAll(mainImageView, btnsPane, palestinePane);
-
-                        introFinished = true;
+            if (Objects.requireNonNull(keyEvent.getCode()) == KeyCode.ENTER) {
+                if (!introFinished) {
+                    for (int i = 0; i < 3; i++) {
+                        txtFd[i].stop();
+                        txtSt[i].stop();
                     }
+                    introPlayer.stop();
+                    mainMenuPane.getChildren().clear();
+
+                    // Set Background
+                    ImageView mainImageView = new ImageView("mainMenuPic.jpg");
+                    mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
+                    mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
+
+                    // Set The Panes
+                    Pane btnsPane = mainMenuBtnsPane();
+                    Pane palestinePane = palestinePane();
+                    mainMenuPane.getChildren().addAll(mainImageView, btnsPane, palestinePane);
+
+                    introFinished = true;
                 }
             }
         });
     }
 
-    /*----------Main Menu Establishing Methods----------*/
+    //---------Main Menu Establishing Methods---------//
     // Returning main menu buttons' pane [Main Menu]
     private Pane mainMenuBtnsPane() {
         Polygon buttonShape1 = new Polygon(0, 0, 200, 0, 230, 30, 30, 30);
@@ -192,27 +184,27 @@ public class HelloApplication extends Application {
         buttonsPane.setLayoutX(39);
         buttonsPane.setLayoutY(352);
 
-        mainMenueBtns = new Button[5];
+        mainMenuBtns = new Button[5];
         String[] btnsText = {"Play", "CHARACTERS", "MAPS", "LEVEL", "INFO"};
 
         for (int i = 0; i < 5; i++) {
             //styling
-            mainMenueBtns[i] = new Button(btnsText[i]);
-            mainMenueBtns[i].setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 20));
-            mainMenueBtns[i].setStyle("-fx-background-color:black ; -fx-border-color:#a0a0aa ;-fx-border-width: 0.7;");
-            mainMenueBtns[i].setTextFill(Color.DARKTURQUOISE);
-            mainMenueBtns[i].setPrefSize(200, 30);
-            mainMenueBtns[i].setShape(i % 2 == 0 ? buttonShape1 : buttonShape2);
+            mainMenuBtns[i] = new Button(btnsText[i]);
+            mainMenuBtns[i].setFont(Font.font("Comic Sans MS", FontWeight.EXTRA_BOLD, FontPosture.ITALIC, 20));
+            mainMenuBtns[i].setStyle("-fx-background-color:black ; -fx-border-color:#a0a0aa ;-fx-border-width: 0.7;");
+            mainMenuBtns[i].setTextFill(Color.DARKTURQUOISE);
+            mainMenuBtns[i].setPrefSize(200, 30);
+            mainMenuBtns[i].setShape(i % 2 == 0 ? buttonShape1 : buttonShape2);
 
 
-            buttonsPane.getChildren().add(mainMenueBtns[i]);
+            buttonsPane.getChildren().add(mainMenuBtns[i]);
 
             //styling events
             int finalI = i;
-            mainMenueBtns[i].setOnMouseEntered(e -> {
-                mainMenueBtns[finalI].setTextFill(Color.BLACK);
-                mainMenueBtns[finalI].setStyle("-fx-background-color:orange ;");
-                mainMenueBtns[finalI].setPrefSize(240, 40);
+            mainMenuBtns[i].setOnMouseEntered(e -> {
+                mainMenuBtns[finalI].setTextFill(Color.BLACK);
+                mainMenuBtns[finalI].setStyle("-fx-background-color:orange ;");
+                mainMenuBtns[finalI].setPrefSize(240, 40);
                 if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
                     sound.btnSound.stop();
                     sound.btnSound.play();
@@ -220,34 +212,34 @@ public class HelloApplication extends Application {
                     sound.btnSound.play();
                 }
             });
-            mainMenueBtns[i].setOnMouseExited(e -> {
-                mainMenueBtns[finalI].setTextFill(Color.DARKTURQUOISE);
-                mainMenueBtns[finalI].setStyle("-fx-background-color:black; -fx-border-color:snow; -fx-border-width: 0.5;");
-                mainMenueBtns[finalI].setPrefSize(200, 30);
+            mainMenuBtns[i].setOnMouseExited(e -> {
+                mainMenuBtns[finalI].setTextFill(Color.DARKTURQUOISE);
+                mainMenuBtns[finalI].setStyle("-fx-background-color:black; -fx-border-color:snow; -fx-border-width: 0.5;");
+                mainMenuBtns[finalI].setPrefSize(200, 30);
             });
 
 
         }
 
         // Navigation
-        mainMenueBtns[0].setOnAction(e -> {
+        mainMenuBtns[0].setOnAction(e -> {
             System.gc();
             stage.setScene(new GamePane(mapNumber,sound,level,pacmanGifNum,stage,mainScene).getScene());
             sound.start_sound.stop();
         });
-        mainMenueBtns[1].setOnAction(e -> {
+        mainMenuBtns[1].setOnAction(e -> {
             stage.setScene(charactersScene);
             sound.start_sound.stop();
         });
-        mainMenueBtns[2].setOnAction(e -> {
+        mainMenuBtns[2].setOnAction(e -> {
             stage.setScene(mapsScene);
             sound.start_sound.stop();
         });
-        mainMenueBtns[3].setOnAction(e -> {
+        mainMenuBtns[3].setOnAction(e -> {
             stage.setScene(levelScene);
             sound.start_sound.stop();
         });
-        mainMenueBtns[4].setOnAction(e -> {
+        mainMenuBtns[4].setOnAction(e -> {
             stage.setScene(infoScene);
             sound.start_sound.stop();
         });
@@ -259,8 +251,7 @@ public class HelloApplication extends Application {
         // Set Palestine Flag
         ImageView[] caseView = {new ImageView("TheCase.png"), new ImageView("TheCase.png")};
         for(int i = 0; i < 2; i++){
-            caseView[i].setFitWidth(60);
-            caseView[i].setFitHeight(60);
+            setImgDimensions(caseView[i], 50, 50);
         }
         // Set Case Text
         Text caseTxt = new Text("We Live For\n The CASE.");
@@ -276,10 +267,10 @@ public class HelloApplication extends Application {
         return palestinePane;
     }
 
-    /*---------------------------------------------------*/
+    /*------------------------------------------------------*/
 
     // Establishing the Scene of Characters (Switched by Characters Bt)
-    public void setCharactersScene() {
+    private void setCharactersScene() {
 
         //pane for characters' gifs
         StackPane charactersPane = charactersGifsPane();
@@ -290,8 +281,7 @@ public class HelloApplication extends Application {
         //set main pane , add buttons' pane and characters' pane to it
         Pane charactersMenuPane = new Pane();
         ImageView characterBackground = new ImageView("CharacterBackground.jpg");
-        characterBackground.setFitWidth(BOARD_WIDTH / 1.15);
-        characterBackground.setFitHeight(BOARD_HEIGHT / 1.25);
+        setImgDimensions(characterBackground, BOARD_WIDTH / 1.15, BOARD_HEIGHT / 1.25);
         charactersMenuPane.getChildren().addAll(characterBackground, charactersBtnsVbox, charactersPane);
 
         //create the scene and add the main pane to it
@@ -299,7 +289,7 @@ public class HelloApplication extends Application {
 
     }
 
-    /*-----------Character Establishing Methods-----------*/
+    //--------Character Establishing Methods-------//
     // Returning Vbox of characters' buttons at [Character Scene]
     private VBox charactersBtnsPane(StackPane charactersPane) {
         VBox charactersBtnsVbox = new VBox(25);
@@ -311,7 +301,7 @@ public class HelloApplication extends Application {
 
         // Setting Characters Buttons
         Button[] charactersBtns = new Button[4];
-        String[] btnsText = {"Pacman", "Pacboy", "Pacwoman", "Back"};
+        String[] btnsText = {"Pacman", "Pacwoman", "Pacboy", "Back"};
         for (int i = 0; i < 3; i++) {
             //set button style
             charactersBtns[i] = new Button(btnsText[i]);
@@ -390,8 +380,7 @@ public class HelloApplication extends Application {
         ImageView[] charactersGifs = new ImageView[3];
         for (int i = 0; i < 3; i++) {
             charactersGifs[i] = new ImageView(gifsUrls[i]);
-            charactersGifs[i].setFitWidth(150);
-            charactersGifs[i].setFitHeight(150);
+            setImgDimensions(charactersGifs[i], 150, 150);
             charactersGifs[i].setTranslateY(160);
             charactersGifs[i].setTranslateX(130);
             charactersGifs[i].setVisible(false);
@@ -400,7 +389,7 @@ public class HelloApplication extends Application {
 
         return charactersPane;
     }
-    /*---------------------------------------------------*/
+    /*------------------------------------------------------*/
 
     // Establishing the Scene of Maps (Switched by Maps Bt)
     private void setMapScene() {
@@ -410,18 +399,16 @@ public class HelloApplication extends Application {
         StackPane mapsImagesPane = new StackPane(maps[0], maps[1], maps[2]);
         mapsImagesPane.setLayoutX(300);
         mapsImagesPane.setLayoutY(150);
-        // mapsImagesPane.setBorder(Border.stroke(Color.TRANSPARENT));
         mapsImagesPane.setBackground(Background.EMPTY);
 
         //maps styling
         for (int i = 0; i < 3; i++) {
-            maps[i].setFitHeight(280);
-            maps[i].setFitWidth(280);
+            setImgDimensions(maps[i], 280, 280);
             maps[i].setVisible(false);
         }
 
 
-        //ste buttons and box for them
+        //Set Buttons And Vbox For Them
         VBox mapsButtonsPane = new VBox(30);
         mapsButtonsPane.setAlignment(Pos.CENTER);
         mapsButtonsPane.setLayoutX(50);
@@ -496,106 +483,14 @@ public class HelloApplication extends Application {
 
         //maps scene
         ImageView mapsBackground = new ImageView("mapsBackground.jpg");
-        mapsBackground.setFitWidth(BOARD_WIDTH / 1.15);
-        mapsBackground.setFitHeight(BOARD_HEIGHT / 1.25);
+        setImgDimensions(mapsBackground, BOARD_WIDTH / 1.15, BOARD_HEIGHT / 1.25);
         Pane mapsPane = new Pane(mapsBackground, mapsButtonsPane, mapsImagesPane);
         mapsScene = new Scene(mapsPane, BOARD_WIDTH / 1.15, BOARD_HEIGHT / 1.25);
 
     }
-
-    /*---------------------------------------------------*/
-
-    // Establishing The Scene of Info (Switched by Info Bt)
-    private void setInfoScene() {
-        Pane infoPane = new Pane();
-
-        Button backBtn = new Button("Back");
-        backBtn.setBackground(Background.EMPTY);
-        backBtn.setLayoutX(700);
-        backBtn.setLayoutY(600);
-        backBtn.setFont(Font.font(35));
-        backBtn.setTextFill(Color.DARKMAGENTA);
-        backBtn.setOnAction(e -> stage.setScene(mainScene));
-        backBtn.setOnMouseEntered(e -> {
-            if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
-                sound.btnSound.stop();
-                sound.btnSound.play();
-            } else {
-                sound.btnSound.play();
-            }
-        });
-        addButtonEffect(backBtn, Color.DARKMAGENTA, Color.rgb(139, 139, 139));
-        // Background
-        ImageView infoBackground = new ImageView("InfoBaackground.jpg");
-        infoBackground.setFitWidth(900);
-        infoBackground.setFitHeight(700);
-        infoPane.getChildren().addAll(infoBackground, backBtn);
-
-        // Members Nodes
-        String[] membersStrs = {"Mahmoud El-Baz", "Abdelrahman El-Hussainy","Omar Tartour", "Osman El-Kinani",
-                "Mahmoud Gamal","Mahmoud Hamdy", "Mazen Mohammed", "Ibrahim Ayman","Mohammed Wagih","Abdallah Mohamed"};
-        Text[] membersTxt = new Text[10];
-        ImageView[] membersQrs = {new ImageView("ElbazQr.jpg"), new ImageView("HussainyQr.jpg"),new ImageView("OmarQr.jpg"),
-                new ImageView("OsmanQr.jpg"),new ImageView("HablassQr.jpg"),new ImageView("HamdyQr.jpg"),new ImageView("MazenQr.jpg")
-                ,new ImageView("IbrahimQr.jpg"),new ImageView("WagihQr.jpg"),new ImageView("AbdallahQr.jpg")};
-        for(int i = 0; i < 10; i++){
-            membersTxt[i] = new Text(membersStrs[i]);
-            membersTxt[i].setFont(Font.font("Garamond", FontWeight.NORMAL, FontPosture.REGULAR, 34));
-            membersTxt[i].setFill(Color.web("#ffffff"));
-            membersTxt[i].setStroke(Color.GRAY);
-            membersTxt[i].setStrokeWidth(.2);
-            membersTxt[i].setX(90);
-            membersTxt[i].setY(52+68*i);
-            membersQrs[i].setFitWidth(57);
-            membersQrs[i].setFitHeight(57);
-            membersQrs[i].setX(20);
-            membersQrs[i].setY(20+68*i);
-            infoPane.getChildren().addAll(membersTxt[i], membersQrs[i]);
-        }
-        // Qr - Text of GitHub
-        ImageView githubQr = new ImageView("GithubQr.png");
-        githubQr.setFitWidth(350);
-        githubQr.setFitHeight(350);
-        githubQr.setX(475);
-        githubQr.setY(80);
-        infoPane.getChildren().add(githubQr);
-
-        Text githubTxt = new Text("Unlock The Project's Code \nBy Scanning This QR Code!\n" +
-                                    "Dive Into The Heart of Our\nProject's Implementation");
-        githubTxt.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, FontPosture.REGULAR, 30));
-        githubTxt.setFill(Color.web("#ffd700"));
-        githubTxt.setStroke(Color.BLACK);
-        githubTxt.setStrokeWidth(.4);
-        githubTxt.setX(465);
-        githubTxt.setY(490);
-        infoPane.getChildren().add(githubTxt);
-
-        infoScene = new Scene(infoPane, 900, 700);
-    }
-
-    /*----------------Helper Methods (Generic)--------------------*/
-
-    // Adding scaling effect to buttons`
-    public void addButtonEffect(Button button, Color before, Color after) {
-        button.setOnMouseEntered(event -> {
-            button.setTextFill(after);
-            button.setScaleX(1.2);
-            button.setScaleY(1.2);
-            if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
-                sound.btnSound.stop();
-                sound.btnSound.play();
-            } else {
-                sound.btnSound.play();
-            }
-        });
-        button.setOnMouseExited(event -> {
-            button.setTextFill(before);
-            button.setScaleX(1);
-            button.setScaleY(1);
-        });
-    }
-
-    public void setLevelScene(){
+    /*------------------------------------------------------*/
+    // Establishing The Scene of Levels (Switched by Level Bt)
+    private void setLevelScene(){
 
         //set background
         ImageView LevelImageView = new ImageView("levelPic.jpg" );
@@ -666,4 +561,102 @@ public class HelloApplication extends Application {
         levelScene = new Scene(levePane,BOARD_WIDTH/1.15,BOARD_HEIGHT/1.25);
 
     }
+    /*------------------------------------------------------*/
+
+    // Establishing The Scene of Info (Switched by Info Bt)
+    private void setInfoScene() {
+        Pane infoPane = new Pane();
+
+        Button backBtn = new Button("Back");
+        backBtn.setBackground(Background.EMPTY);
+        backBtn.setLayoutX(700);
+        backBtn.setLayoutY(600);
+        backBtn.setFont(Font.font(35));
+        backBtn.setTextFill(Color.DARKMAGENTA);
+        backBtn.setOnAction(e -> stage.setScene(mainScene));
+        backBtn.setOnMouseEntered(e -> {
+            if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
+                sound.btnSound.stop();
+                sound.btnSound.play();
+            } else {
+                sound.btnSound.play();
+            }
+        });
+        addButtonEffect(backBtn, Color.DARKMAGENTA, Color.rgb(139, 139, 139));
+
+        // Background
+        ImageView infoBackground = new ImageView("InfoBackground.jpg");
+        setImgDimensions(infoBackground, 900, 700);
+        infoPane.getChildren().addAll(infoBackground, backBtn);
+
+        // Members Nodes
+        String[] membersStrs = {"Mahmoud El-Baz", "Abdelrahman El-Hussainy","Omar Tartour", "Osman El-Kinani",
+                "Mahmoud Gamal","Mahmoud Hamdy", "Mazen Mohammed", "Ibrahim Ayman","Mohammed Wagih","Abdallah Mohamed"};
+        Text[] membersTxt = new Text[10];
+        ImageView[] membersQrs = {new ImageView("ElbazQr.jpg"), new ImageView("HussainyQr.jpg"),new ImageView("OmarQr.jpg"),
+                new ImageView("OsmanQr.jpg"),new ImageView("HablassQr.jpg"),new ImageView("HamdyQr.jpg"),new ImageView("MazenQr.jpg")
+                ,new ImageView("IbrahimQr.jpg"),new ImageView("WagihQr.jpg"),new ImageView("AbdallahQr.jpg")};
+        for(int i = 0; i < 10; i++){
+            membersTxt[i] = new Text(membersStrs[i]);
+            membersTxt[i].setStyle("-fx-font-family: 'Trebuchet MS'; -fx-font-size: 30");
+            membersTxt[i].setFill(Color.web("#f5f5dc"));
+            membersTxt[i].setStroke(Color.GRAY);
+            membersTxt[i].setStrokeWidth(.2);
+            setTxtPosition(membersTxt[i], 90, 52+68*i);
+            adjustImg(membersQrs[i], 57, 57, 20, 20+68*i);
+            infoPane.getChildren().addAll(membersTxt[i], membersQrs[i]);
+        }
+        // Qr - Text of GitHub
+        ImageView githubQr = new ImageView("GithubQr.png");
+        adjustImg(githubQr, 350, 350, 525, 100);
+        infoPane.getChildren().add(githubQr);
+
+        Text githubTxt = new Text("Unlock The Project's Code \nBy Scanning This QR Code!\n" +
+                                    "Dive Into The Heart of Our\nProject's Implementation");
+        githubTxt.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, FontPosture.REGULAR, 25));
+        githubTxt.setFill(Color.web("#ffd700"));
+        githubTxt.setStroke(Color.BLACK);
+        githubTxt.setStrokeWidth(.4);
+        setTxtPosition(githubTxt, 547, 490);
+        infoPane.getChildren().add(githubTxt);
+
+        infoScene = new Scene(infoPane, 900, 700);
+    }
+
+    /*----------------Helper Methods (Generic)--------------------*/
+
+    private void setTxtPosition(Text txt, double x, double y){
+        txt.setX(x);
+        txt.setY(y);
+    }
+    private void setImgDimensions(ImageView img, double width, double height){
+        img.setFitWidth(width);
+        img.setFitHeight(height);
+    }
+    private void adjustImg(ImageView img, double width, double height,double x, double y){
+        img.setFitWidth(width);
+        img.setFitHeight(height);
+        img.setX(x);
+        img.setY(y);
+    }
+    // Adding Scaling Effect To Button
+    private void addButtonEffect(Button button, Color before, Color after) {
+        button.setOnMouseEntered(event -> {
+            button.setTextFill(after);
+            button.setScaleX(1.2);
+            button.setScaleY(1.2);
+            if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
+                sound.btnSound.stop();
+                sound.btnSound.play();
+            } else {
+                sound.btnSound.play();
+            }
+        });
+        button.setOnMouseExited(event -> {
+            button.setTextFill(before);
+            button.setScaleX(1);
+            button.setScaleY(1);
+        });
+    }
+
 }
