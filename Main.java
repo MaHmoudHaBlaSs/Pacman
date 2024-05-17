@@ -114,7 +114,7 @@ public class Main extends Application {
 
         mainMenuPane.getChildren().addAll(introView, introTxts[0], introTxts[1], introTxts[2]);
 
-        Timeline txtTl = new Timeline(new KeyFrame(Duration.seconds(6), event ->{
+        Timeline txtTl = new Timeline(new KeyFrame(Duration.seconds(7.5), event ->{
             for (int i = 0; i < 3; i++){
                 txtFd[i].play();
                 txtSt[i].play();
@@ -123,7 +123,7 @@ public class Main extends Application {
         txtTl.setCycleCount(1);
         txtTl.play();
 
-        Timeline introTl = new Timeline(new KeyFrame(Duration.seconds(27), event ->{
+        Timeline introTl = new Timeline(new KeyFrame(Duration.seconds(27.8), event ->{
             for(int i = 0; i < 3; i++){
                 txtFd[i].stop();
                 txtSt[i].stop();
