@@ -323,7 +323,6 @@ public class Main extends Application {
             });
             charactersBtns[i].setOnMouseEntered(event -> {
                 charactersPane.getChildren().get(finalI).setVisible(true);
-                addButtonScaleEffect(charactersBtns[finalI], 1.2, 1.2, Color.MAGENTA);
                 if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
                     sound.btnSound.stop();
                     sound.btnSound.play();
@@ -333,11 +332,13 @@ public class Main extends Application {
             });
             charactersBtns[i].setOnMouseExited(event -> {
                 charactersPane.getChildren().get(finalI).setVisible(false);
-                addButtonScaleEffect(charactersBtns[finalI], 1, 1, Color.CYAN);
             });
 
             //add the button to the vbox
             charactersBtnsVbox.getChildren().add(charactersBtns[i]);
+        }
+        for(int i = 0; i < 3; i++){
+            addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
         }
 
         // Setting the Back Button
@@ -345,7 +346,7 @@ public class Main extends Application {
         charactersBtns[3].setFont(Font.font("Comic Sans MS", 30));
         charactersBtns[3].setBackground(Background.EMPTY);
         charactersBtns[3].setTextFill(Color.DARKRED);
-        addButtonEffect(charactersBtns[3], Color.DARKRED, Color.RED);
+
         charactersBtns[3].setOnAction(event -> stage.setScene(mainScene));
         charactersBtns[3].setOnMouseEntered(e -> {
             sound.start_sound.stop();
@@ -356,6 +357,8 @@ public class Main extends Application {
                 sound.btnSound.play();
             }
         });
+        addButtonEffect(charactersBtns[3], Color.DARKRED, Color.RED);
+
         charactersBtnsVbox.getChildren().add(charactersBtns[3]);
         return charactersBtnsVbox;
     }
@@ -635,9 +638,7 @@ public class Main extends Application {
     // Adding Scaling Effect To Button
     private void addButtonEffect(Button button, Color before, Color after) {
         button.setOnMouseEntered(event -> {
-            button.setTextFill(after);
-            button.setScaleX(1.2);
-            button.setScaleY(1.2);
+            addButtonScaleEffect(button, 1.2, 1.2, after);
             if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
                 sound.btnSound.stop();
                 sound.btnSound.play();
@@ -646,10 +647,7 @@ public class Main extends Application {
             }
         });
         button.setOnMouseExited(event -> {
-            button.setTextFill(before);
-            button.setScaleX(1);
-            button.setScaleY(1);
+            addButtonScaleEffect(button, 1, 1, before);
         });
     }
-
 }
