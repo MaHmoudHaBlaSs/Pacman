@@ -2,8 +2,10 @@ package org.example.gamedemo;
 
 import javafx.animation.*;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -134,15 +136,10 @@ public class Main extends Application {
         }));
         introTl.setOnFinished(event -> {
 
-            // Set Background
-            ImageView mainImageView = new ImageView("mainMenuPic.jpg");
-            mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
-            mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
+            // Setting The mainMenu Pane
+            mainMenuPane.getChildren().clear();
+            mainMenuPane.getChildren().addAll(mainMenuNodes());
 
-            // Set The Panes
-            Pane btnsPane = mainMenuBtnsPane();
-            Pane palestinePane = palestinePane();
-            mainMenuPane.getChildren().addAll(mainImageView, btnsPane, palestinePane);
         });
         introTl.setCycleCount(1);
         introTl.play();
@@ -155,17 +152,10 @@ public class Main extends Application {
                         txtSt[i].stop();
                     }
                     introPlayer.stop();
+
+                    // Setting The mainMenu Pane
                     mainMenuPane.getChildren().clear();
-
-                    // Set Background
-                    ImageView mainImageView = new ImageView("mainMenuPic.jpg");
-                    mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
-                    mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
-
-                    // Set The Panes
-                    Pane btnsPane = mainMenuBtnsPane();
-                    Pane palestinePane = palestinePane();
-                    mainMenuPane.getChildren().addAll(mainImageView, btnsPane, palestinePane);
+                    mainMenuPane.getChildren().addAll(mainMenuNodes());
 
                     introFinished = true;
                 }
@@ -174,7 +164,22 @@ public class Main extends Application {
     }
 
     //---------Main Menu Establishing Methods---------//
-    // Returning main menu buttons' pane [Main Menu]
+    // Returning Main Menu Nodes [Buttons Pane - Palestine Pane - Background]
+    private ObservableList<Node> mainMenuNodes(){
+        Pane mainMenuPane = new Pane();
+        // Set Background
+        ImageView mainImageView = new ImageView("mainMenuPic.jpg");
+        mainImageView.setFitWidth(BOARD_WIDTH / 1.14);
+        mainImageView.setFitHeight(BOARD_HEIGHT / 1.25);
+
+        // Set The Panes
+        Pane btnsPane = mainMenuBtnsPane();
+        // Set Palestine
+        Pane palestinePane = palestinePane();
+        mainMenuPane.getChildren().addAll(mainImageView, btnsPane, palestinePane);
+        return mainMenuPane.getChildren();
+    }
+    // Returning Main menu Buttons Pane
     private Pane mainMenuBtnsPane() {
         Polygon buttonShape1 = new Polygon(0, 0, 200, 0, 230, 30, 30, 30);
         Polygon buttonShape2 = new Polygon(30, 0, 230, 0, 200, 30, 0, 30);
@@ -245,6 +250,7 @@ public class Main extends Application {
         });
         return buttonsPane;
     }
+    // Returning Main menu Palestine Pane
     private Pane palestinePane(){
         HBox palestinePane = new HBox();
 
@@ -266,7 +272,6 @@ public class Main extends Application {
 
         return palestinePane;
     }
-
     /*------------------------------------------------------*/
 
     // Establishing the Scene of Characters (Switched by Characters Bt)
@@ -309,8 +314,7 @@ public class Main extends Application {
             charactersBtns[i].setFont(new Font("Comic Sans MS", 30));
             charactersBtns[i].setTextFill(Color.CYAN);
 
-
-            //set the button event
+            // Set The Button Events
             int finalI = i;
             charactersBtns[i].setOnAction(event -> {
                 sound.start_sound.stop();
@@ -319,9 +323,7 @@ public class Main extends Application {
             });
             charactersBtns[i].setOnMouseEntered(event -> {
                 charactersPane.getChildren().get(finalI).setVisible(true);
-                charactersBtns[finalI].setTextFill(Color.MAGENTA);
-                charactersBtns[finalI].setScaleX(1.2);
-                charactersBtns[finalI].setScaleY(1.2);
+                addButtonScaleEffect(charactersBtns[finalI], 1.2, 1.2, Color.MAGENTA);
                 if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
                     sound.btnSound.stop();
                     sound.btnSound.play();
@@ -331,9 +333,7 @@ public class Main extends Application {
             });
             charactersBtns[i].setOnMouseExited(event -> {
                 charactersPane.getChildren().get(finalI).setVisible(false);
-                charactersBtns[finalI].setTextFill(Color.CYAN);
-                charactersBtns[finalI].setScaleX(1);
-                charactersBtns[finalI].setScaleY(1);
+                addButtonScaleEffect(charactersBtns[finalI], 1, 1, Color.CYAN);
             });
 
             //add the button to the vbox
@@ -367,13 +367,6 @@ public class Main extends Application {
         charactersPane.setBackground(Background.EMPTY);
         charactersPane.setLayoutX(120);
         charactersPane.setLayoutY(120);
-
-        // Adjusting characters pane (VBox)
-        VBox charactersBtnsVbox = new VBox(25);
-        charactersBtnsVbox.setAlignment(Pos.CENTER_LEFT);
-        charactersBtnsVbox.setLayoutX(10);
-        charactersBtnsVbox.setLayoutY(150);
-        charactersBtnsVbox.setPadding(new Insets(10));
 
         //set the gif for every character
         String[] gifsUrls = {"PacmanEye.gif", "pacwoman.gif", "pacboy.gif"};
@@ -450,9 +443,7 @@ public class Main extends Application {
                 });
                 mapsButtons[i].setOnMouseEntered(e -> {
                     // Styling
-                    mapsButtons[finalI].setTextFill(Color.rgb(229, 187, 229));
-                    mapsButtons[finalI].setScaleX(1.2);
-                    mapsButtons[finalI].setScaleY(1.2);
+                    addButtonScaleEffect(mapsButtons[finalI], 1.2, 1.2, Color.rgb(229, 187, 229));
                     // Sounds
                     if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
                         sound.btnSound.stop();
@@ -464,9 +455,7 @@ public class Main extends Application {
                 });
                 mapsButtons[i].setOnMouseExited(e -> {
                     // Effects
-                    mapsButtons[finalI].setTextFill(Color.rgb(160, 160, 170));
-                    mapsButtons[finalI].setScaleX(1);
-                    mapsButtons[finalI].setScaleY(1);
+                    addButtonScaleEffect(mapsButtons[finalI], 1, 1, Color.rgb(160, 160, 170));
                     // Sounds
                     if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
                         sound.btnSound.stop();
@@ -624,7 +613,6 @@ public class Main extends Application {
     }
 
     /*----------------Helper Methods (Generic)--------------------*/
-
     private void setTxtPosition(Text txt, double x, double y){
         txt.setX(x);
         txt.setY(y);
@@ -638,6 +626,11 @@ public class Main extends Application {
         img.setFitHeight(height);
         img.setX(x);
         img.setY(y);
+    }
+    private void addButtonScaleEffect(Button btn, double scaleX, double scaleY, Color newColor){
+        btn.setScaleX(scaleX);
+        btn.setScaleY(scaleY);
+        btn.setTextFill(newColor);
     }
     // Adding Scaling Effect To Button
     private void addButtonEffect(Button button, Color before, Color after) {
