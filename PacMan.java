@@ -10,6 +10,7 @@ import javafx.util.Duration;
 
 
 public class PacMan extends Character {
+    static private int previousScore = 0;
     private final Maze maze;
     private final MazeView mazeView;
     private final Timeline autoMovement;
@@ -95,6 +96,9 @@ public class PacMan extends Character {
     /*-----------------Setters / Getters-----------------*/
     public Timeline getAutoMovement() {return autoMovement;}
     public MazeView getMazeView() {return mazeView;}
+    public int getScore() {return score;}
+    public int getPreviousScore() {return previousScore;}
+    public static void setPreviousScore(int previousScore) {PacMan.previousScore = previousScore;}
 
     /*----------------Helper Methods---------------------*/
     private void setPositionTl(){
@@ -122,7 +126,7 @@ public class PacMan extends Character {
             Rectangle emptySpace = new Rectangle(nextColumn * CELL_SIZE, nextRow * CELL_SIZE,CELL_SIZE,CELL_SIZE);
             emptySpace.setFill(Color.TRANSPARENT);
             maze.setEmptySpace(nextRow,nextColumn);
-            mazeView.getChildren().remove(nextRow* maze.getCols() + nextColumn );
+            mazeView.getChildren().remove(nextRow* maze.getCols() + nextColumn);
             mazeView.getChildren().add(nextRow* maze.getCols() + nextColumn, emptySpace);
 
             // Sound
