@@ -30,8 +30,8 @@ public class GamePane extends Pane {
         MazeView mazeView = new MazeView(new Maze(BOARD_WIDTH, BOARD_HEIGHT, CELL_SIZE, mapNumber));
         pacman = new PacMan(1, 1, mazeView, pacmanGifNum);
         ghosts = createGhosts(mazeView, level);
-        getChildren().addAll(createBackground(mapNumber),mazeView);
-        gameScene = new Scene(this,BOARD_WIDTH,BOARD_HEIGHT);
+        getChildren().addAll(createBackground(mapNumber), mazeView);
+        gameScene = new Scene(this, BOARD_WIDTH, BOARD_HEIGHT);
 
         movePacman();
         checkLife();
@@ -67,16 +67,16 @@ public class GamePane extends Pane {
         gameScene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case RIGHT:
-                    pacman.setDirection(Direction.RIGHT);    //to set last press right
+                    pacman.setDirection(Direction.RIGHT); //to set last press right
                     break;
                 case DOWN:
-                    pacman.setDirection(Direction.DOWN);    //to set last press down
+                    pacman.setDirection(Direction.DOWN);  //to set last press down
                     break;
                 case UP:
-                    pacman.setDirection(Direction.UP);     //to set last press up
+                    pacman.setDirection(Direction.UP);    //to set last press up
                     break;
                 case LEFT:
-                    pacman.setDirection(Direction.LEFT);    //to set last press left
+                    pacman.setDirection(Direction.LEFT);  //to set last press left
                     break;
             }
         });
@@ -136,8 +136,8 @@ public class GamePane extends Pane {
             endingImgs[i].setVisible(false);
         }
 
-        FadeTransition[] txtsFadeTransition = new FadeTransition[3];
-        StrokeTransition[] txtsStrokeTransition = new StrokeTransition[3];
+        FadeTransition[] txtsFadeTransition = new FadeTransition[5];
+        StrokeTransition[] txtsStrokeTransition = new StrokeTransition[5];
         Text[] endGameTexts = initializeEndGameTexts(txtsStrokeTransition, txtsFadeTransition);
 
         if (isDeath) {
@@ -148,7 +148,7 @@ public class GamePane extends Pane {
     }
     // Setting Ending Texts [Press ESC - Press Enter - You Won] and Their Effects
     private Text[] initializeEndGameTexts(StrokeTransition[] txtsStrokeTransition, FadeTransition[] txtsFadeTransition) {
-        Text[] endGameTexts = new Text[3];
+        Text[] endGameTexts = new Text[5];
         endGameTexts[0] = new Text("Press 'Enter' For Main Menu");
         endGameTexts[0].setLayoutX(240);
         endGameTexts[0].setLayoutY(630);
@@ -161,7 +161,15 @@ public class GamePane extends Pane {
         endGameTexts[2].setLayoutX(306);
         endGameTexts[2].setLayoutY(100);
 
-        for (int i = 0; i < 3; i++) {
+        endGameTexts[3] = new Text("Score: ");
+        endGameTexts[3].setLayoutX(10);
+        endGameTexts[3].setLayoutY(30);
+
+        endGameTexts[4] = new Text("Previous Score: ");
+        endGameTexts[4].setLayoutX(10);
+        endGameTexts[4].setLayoutY(60);
+
+        for (int i = 0; i < 5; i++) {
 
             // Setting Text Properties
             endGameTexts[i].setVisible(false);
@@ -200,22 +208,20 @@ public class GamePane extends Pane {
         endingImgs[1].setVisible(true);
         imgsTransition[1].play();
         imgsTransition[1].setOnFinished(event1 -> {
-            // Press Enter Text
-            endGameTexts[0].setVisible(true);
-            txtsFadeTransition[0].play();
-            txtsStrokeTransition[0].play();
-            // Press ESC Text
-            endGameTexts[1].setVisible(true);
-            txtsFadeTransition[1].play();
-            txtsStrokeTransition[1].play();
-            // You Won Text
-            endGameTexts[2].setVisible(true);
-            txtsFadeTransition[2].play();
-            txtsStrokeTransition[2].play();
+
+            endGameTexts[3].setText(endGameTexts[3].getText()+ pacman.getScore());
+            endGameTexts[4].setText(endGameTexts[4].getText()+ pacman.getPreviousScore());
+
+            for(int i = 0; i < 5; i++){
+                endGameTexts[i].setVisible(true);
+                txtsFadeTransition[i].play();
+                txtsStrokeTransition[i].play();
+            }
 
             gameScene.setOnKeyPressed(keyEvent -> {
                 switch (keyEvent.getCode()) {
                     case ENTER -> {
+                        PacMan.setPreviousScore(pacman.getScore());
                         stage.setScene(mainScene);
                         sound.winSound.stop();
                     }
@@ -241,18 +247,22 @@ public class GamePane extends Pane {
         endingImgs[0].setVisible(true);
         imgsTransition[0].play();
         imgsTransition[0].setOnFinished(event1 -> {
-            // Press Enter Text
-            endGameTexts[0].setVisible(true);
-            txtsFadeTransition[0].play();
-            txtsStrokeTransition[0].play();
-            // Press ESC Text
-            endGameTexts[1].setVisible(true);
-            txtsFadeTransition[1].play();
-            txtsStrokeTransition[1].play();
+
+            endGameTexts[3].setText(endGameTexts[3].getText()+ pacman.getScore());
+            endGameTexts[4].setText(endGameTexts[4].getText()+ pacman.getPreviousScore());
+            for(int i = 0; i < 5; i++){
+                if(i != 2) // i = 2 -> "You Won"
+                {
+                    endGameTexts[i].setVisible(true);
+                    txtsFadeTransition[i].play();
+                    txtsStrokeTransition[i].play();
+                }
+            }
 
             gameScene.setOnKeyPressed(keyEvent -> {
                 switch (keyEvent.getCode()) {
                     case ENTER -> {
+                        PacMan.setPreviousScore(pacman.getScore());
                         stage.setScene(mainScene);
                         sound.deathSound.stop();
                     }
@@ -263,5 +273,4 @@ public class GamePane extends Pane {
             });
         });
     }
-
 }
