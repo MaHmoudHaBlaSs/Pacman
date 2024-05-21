@@ -1,5 +1,6 @@
 package org.example.gamedemo;
 
+
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -80,7 +81,7 @@ public class Main extends Application {
         mainScene = new Scene(mainMenuPane, BOARD_WIDTH / 1.15, BOARD_HEIGHT / 1.25);
 
         // Set Intro Video
-        introPlayer = new MediaPlayer(new Media(new File("D:\\Resources\\Sounds\\Intro.mp4").toURI().toString()));
+        introPlayer = new MediaPlayer(new Media(new File("C:\\Users\\Abdal\\IdeaProjects\\pacman\\src\\main\\resources\\Intro.mp4").toURI().toString()));
         MediaView introView = new MediaView(introPlayer);
         introView.setFitWidth(BOARD_WIDTH/ 1.14);
         introView.setFitHeight(BOARD_HEIGHT/ 1.1); // Trial & Error Value
@@ -323,6 +324,8 @@ public class Main extends Application {
             });
             charactersBtns[i].setOnMouseEntered(event -> {
                 charactersPane.getChildren().get(finalI).setVisible(true);
+                addButtonScaleEffect(charactersBtns[finalI], 1.2, 1.2, Color.MAGENTA);
+
                 if (sound.btnSound.getStatus() == MediaPlayer.Status.PLAYING) {
                     sound.btnSound.stop();
                     sound.btnSound.play();
@@ -332,14 +335,13 @@ public class Main extends Application {
             });
             charactersBtns[i].setOnMouseExited(event -> {
                 charactersPane.getChildren().get(finalI).setVisible(false);
+                addButtonScaleEffect(charactersBtns[finalI], 1, 1, Color.CYAN);
             });
 
             //add the button to the vbox
             charactersBtnsVbox.getChildren().add(charactersBtns[i]);
         }
-        for(int i = 0; i < 3; i++){
-            addButtonEffect(charactersBtns[i], Color.CYAN, Color.MAGENTA);
-        }
+
 
         // Setting the Back Button
         charactersBtns[3] = new Button(btnsText[3]);
@@ -604,7 +606,7 @@ public class Main extends Application {
         infoPane.getChildren().add(githubQr);
 
         Text githubTxt = new Text("Unlock The Project's Code \nBy Scanning This QR Code!\n" +
-                                    "Dive Into The Heart of Our\nProject's Implementation");
+                "Dive Into The Heart of Our\nProject's Implementation");
         githubTxt.setFont(Font.font("Comic Sans MS", FontWeight.NORMAL, FontPosture.REGULAR, 25));
         githubTxt.setFill(Color.web("#ffd700"));
         githubTxt.setStroke(Color.BLACK);
