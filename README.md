@@ -52,7 +52,7 @@ Pacman-Game/
 *[Youtube Video](https://youtu.be/tie3lls24kk)*
 
 ## 🤝 Contributors
-- **[Mahmoud Gamal](https://github.com/Abdallahmoh443)** 
+- **[Mahmoud Gamal](https://github.com/MaHmoudHaBlaSs)** 
 - **[Abdullah Muhammed](https://github.com/Abdallahmoh443)**
 - **[Mahmoud El-Baz](https://github.com/MHMOUD-ELBAZ)**
 - **[Mahmoud Hamdy](https://github.com/ma7moud-7amdy)**
