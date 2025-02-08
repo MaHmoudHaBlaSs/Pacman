@@ -49,11 +49,11 @@ Pacman-Game/
 3. **Run the main class** (`Main.java`).
 
 ## 📸 Video
-*[(Video)](https://youtu.be/tie3lls24kk)*
+*[(Youtube Video)](https://youtu.be/tie3lls24kk)*
 
 ## 🤝 Contributors
-- **[Your Name]** - Lead Developer & Team Lead
-- **[Other Contributors]** - (Add team members' names and roles)
+- **(Mahmoud Gamal) (https://github.com/Abdallahmoh443)** 
+- **[Other Contributors]** 
 
 
 ## ⭐ Acknowledgments
