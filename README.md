@@ -49,11 +49,17 @@ Pacman-Game/
 3. **Run the main class** (`Main.java`).
 
 ## 📸 Video
-*[(Youtube Video)](https://youtu.be/tie3lls24kk)*
+*[Youtube Video](https://youtu.be/tie3lls24kk)*
 
 ## 🤝 Contributors
-- **(Mahmoud Gamal) (https://github.com/Abdallahmoh443)** 
-- **[Other Contributors]** 
+- **[Mahmoud Gamal](https://github.com/Abdallahmoh443)** 
+- **[Abdullah Muhammed](https://github.com/Abdallahmoh443)**
+- **[Mahmoud El-Baz](https://github.com/MHMOUD-ELBAZ)**
+- **[Mahmoud Hamdy](https://github.com/ma7moud-7amdy)**
+- **[Abdullrahamn El-Hussainy](https://github.com/abdelrahman-hossieny)**
+- **[Mazen Muhammed](https://github.com/mezo0o0)**
+- **[Ibrahim Ayman](https://github.com/eprahimayman)**
+- **[Osman El-Kinani](https://github.com/Osman-Elkinani)**
 
 
 ## ⭐ Acknowledgments
@@ -62,5 +68,5 @@ Pacman-Game/
 - Classic Pacman for inspiration 🎮
 
 ---
-Made with ❤️ by [Your Name] & Team.
+Made with ❤️ by ***Java_Newbies*** Team.
 
