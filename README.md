@@ -48,7 +48,7 @@ Pacman-Game/
 2. **Open the project in your IDE** and ensure JavaFX is set up.
 3. **Run the main class** (`Main.java`).
 
-## 📸 Video
+## 📸 Gameplay
 *[Youtube Video](https://youtu.be/tie3lls24kk)*
 
 ## 🤝 Contributors
