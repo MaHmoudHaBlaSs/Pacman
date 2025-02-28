@@ -68,5 +68,5 @@ Pacman-Game/
 - Classic Pacman for inspiration 🎮
 
 ---
-Made with ❤️ by ***Java_Newbies*** Team.
+Made by ***Java_Newbies*** Team.
 
